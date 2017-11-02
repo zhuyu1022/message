@@ -1,18 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+   android:padding="16dp"
     tools:context="message.centit.com.message.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!--<EditText-->
+    <!--android:id="@+id/phoneNoTv"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:hint="输入需要监听的手机号码"/>-->
 
-</android.support.constraint.ConstraintLayout>
+
+    <!--<android.support.v7.widget.RecyclerView-->
+    <!--android:id="@+id/phoneRecyclerView"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent">-->
+
+    <!--</android.support.v7.widget.RecyclerView>-->
+
+
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:id="@+id/addBtn"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_margin="16dp"-->
+    <!--android:src="@drawable/add"-->
+    <!--app:backgroundTint="@color/colorPrimaryDark" />-->
+
+    <TextView
+        android:id="@+id/phoneTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="手机号码："
+        android:textSize="25sp" />
+
+    <EditText
+        android:layout_below="@id/phoneTv"
+        android:id="@+id/phoneEt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="多个号码“，”分割"
+        android:digits="0123456789,"/>
+    <TextView
+       android:id="@+id/webAdressTv"
+        android:layout_below="@id/phoneEt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint=""
+        android:text="服务端访问地址："
+        android:textSize="25sp" />
+
+    <EditText
+        android:id="@+id/webAdressEt"
+        android:layout_below="@id/webAdressTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+<Button
+    android:id="@+id/okBtn"
+    android:layout_below="@id/webAdressEt"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:textSize="20sp"
+    android:background="@color/colorPrimary"
+    android:textColor="@android:color/white"
+    android:text="保存"
+    />
+
+</RelativeLayout>
