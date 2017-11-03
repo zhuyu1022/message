@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         //保存到本地
         SharedUtil.putValue(this,SharedUtil.phoneNo,phoneNo);
         SharedUtil.putValue(this,SharedUtil.webAddress,webAddress);
-        SimpleDialog.show(this,"保存成功！");
+        Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
     }
 
 

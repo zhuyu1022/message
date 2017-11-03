@@ -17,6 +17,9 @@ import java.util.Date;
 import message.centit.com.message.util.LogUtil;
 
 public class SmsReceiver extends BroadcastReceiver {
+
+
+
     public SmsReceiver() {
         Log.i("yjj", "new SmsReceiver");
     }
@@ -26,6 +29,9 @@ public class SmsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         LogUtil.d("接收到广播！");
+        String receiveTime = "";
+        String msgBody = "";
+        String sender = "";
         Bundle bundle = intent.getExtras();
         String format = intent.getStringExtra("format");
         SmsMessage msg = null;
@@ -38,18 +44,12 @@ public class SmsReceiver extends BroadcastReceiver {
                     msg = SmsMessage.createFromPdu((byte[]) object, format);
                 }
                 Date date = new Date(msg.getTimestampMillis());//时间
-                String receiveTime = df.format(date);
-                String msgBody = msg.getMessageBody();
-                String sender = msg.getOriginatingAddress();
-                //在这里写自己的逻辑
-//                if (sender.equals("10086")) {
-//                    //TODOn
-//                }
-                //启动服务
-                UpLoadService.actionStart(context ,receiveTime,msgBody,sender);
-
-
+                 receiveTime = df.format(date);
+                 msgBody += msg.getMessageBody();
+                 sender = msg.getOriginatingAddress();
             }
+            //启动服务
+            UpLoadService.actionStart(context ,receiveTime,msgBody,sender);
         }
     }
 

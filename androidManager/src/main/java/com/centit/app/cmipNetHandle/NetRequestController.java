@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.centit.GlobalState;
 import com.centit.app.cmipConstant.Constant_Mgr;

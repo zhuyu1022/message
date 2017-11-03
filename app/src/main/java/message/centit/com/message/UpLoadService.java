@@ -10,13 +10,18 @@ import android.os.IBinder;
 import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.centit.core.baseView.baseUI.MIPBaseService;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import message.centit.com.message.net.ServiceImpl;
 import message.centit.com.message.util.LogUtil;
 import message.centit.com.message.util.SharedUtil;
 
@@ -64,32 +69,38 @@ public class UpLoadService extends MIPBaseService {
     }
 
     @Override
-    public int onStartCommand(Intent intent,  int flags, int startId) {
-        String receiveTime=intent.getStringExtra(EXTRA_TIME);
-        String msgBody =intent.getStringExtra(EXTRA_MSG);
-        String sender=intent.getStringExtra(EXTRA_SENDER);
+    public int onStartCommand(final Intent intent, int flags, int startId) {
 
-        phoneNoStr= (String) SharedUtil.getValue(this,SharedUtil.phoneNo,"");
-        webAddress= (String) SharedUtil.getValue(this,SharedUtil.webAddress,"");
-        if (!TextUtils.isEmpty(phoneNoStr)&&!TextUtils.isEmpty(webAddress)){
-            if (phoneNoStr.contains(",")){
-                phoneList= phoneNoStr.split(",");
-            }else{
-                phoneList=new String[]{phoneNoStr};
 
-            }
-        }
+                String receiveTime=intent .getStringExtra(EXTRA_TIME);
+                String msgBody =intent.getStringExtra(EXTRA_MSG);
+                String sender=intent.getStringExtra(EXTRA_SENDER);
 
-        for(int i=0;i<phoneList.length;i++)
-        {      //如果是其中的一个号码，就上传服务器
-            if (sender.equals(phoneList[i].trim())){
-                Toast.makeText(this, msgBody, Toast.LENGTH_LONG).show();
-                break;
-            }
-        }
+                phoneNoStr= (String) SharedUtil.getValue(UpLoadService.this,SharedUtil.phoneNo,"");
+                webAddress= (String) SharedUtil.getValue(UpLoadService.this,SharedUtil.webAddress,"");
+                if (!TextUtils.isEmpty(phoneNoStr)&&!TextUtils.isEmpty(webAddress)){
+                    if (phoneNoStr.contains(",")){
+                        phoneList= phoneNoStr.split(",");
+                    }else{
+                        phoneList=new String[]{phoneNoStr};
 
-      LogUtil.d("uploadservice服务启动");
-        LogUtil.d("receiveTime:"+receiveTime+"msgBody:"+msgBody+"sender:"+sender);
+                    }
+                }
+
+                for(int i=0;i<phoneList.length;i++)
+                {      //如果是其中的一个号码，就上传服务器
+                    if (sender.equals(phoneList[i].trim())){
+                        Toast.makeText(UpLoadService.this, msgBody, Toast.LENGTH_LONG).show();
+                       // uploadMessage(msgBody);
+                        break;
+                    }
+                }
+
+                LogUtil.d("uploadservice服务启动");
+                LogUtil.d("receiveTime:"+receiveTime+"msgBody:"+msgBody+"sender:"+sender);
+
+
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -108,6 +119,16 @@ public class UpLoadService extends MIPBaseService {
                 .build();
         startForeground(1,notification);
     }
+
+    /**
+     * 上传短信内容
+     * @param msgBody
+     */
+    private void uploadMessage(String msgBody){
+        ServiceImpl.acceptMessage(null,mHandler,ServiceImpl.TYPE_AcceptMessage,msgBody);
+    }
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -115,6 +136,36 @@ public class UpLoadService extends MIPBaseService {
 
     @Override
     public void onPostHandle(int requestType, Object objHeader, Object objBody, boolean error, int errorCode) {
+        if (error) {
+            switch (requestType) {
+                case ServiceImpl.TYPE_AcceptMessage:
 
+                    if (objBody != null && objBody instanceof String) {
+                        try {
+                            Log.d("返回的数据为：", objBody.toString());
+                            JSONObject jsonObj = new JSONObject((String) objBody);
+                            if (jsonObj != null) {
+                                String retCode = jsonObj.optString("retCode");
+
+                                if (retCode != null && retCode.equals("0")) {
+
+                                    Toast.makeText(this, "上传成功！", Toast.LENGTH_SHORT).show();
+
+                                    return;
+                                }
+                            }
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+
+            }
+        } else {
+            switch (requestType) {
+
+            }
+        }
     }
 }
