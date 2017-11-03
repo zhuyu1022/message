@@ -2558,8 +2558,28 @@ public class GlobalState extends Application
         this.mMethodName = mMethodName;
         setValue("mMethodName", mMethodName);
     }
+    private String                   PhoneStrs        = "";
+
+    /**
+     * 获取手机号码字符串
+     * @return
+     */
+    public String getPhoneStrs()
+    {
+        if (PhoneStrs == null || "".equals(PhoneStrs))
+        {
+            PhoneStrs = (String)getVaule("PhoneStrs", "");
+        }
+
+        return PhoneStrs;
+    }
 
 
+    public void setPhoneStrs(String PhoneStrs)
+    {
+        this.PhoneStrs = PhoneStrs;
+        setValue("PhoneStrs", PhoneStrs);
+    }
 
 
 

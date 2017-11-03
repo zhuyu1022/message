@@ -6,8 +6,7 @@ import android.preference.PreferenceManager;
 
 public class SharedUtil {
 
-	public static final String phoneNo = "phoneNo";
-	public static final String webAddress = "webAddress";
+
 
 
 

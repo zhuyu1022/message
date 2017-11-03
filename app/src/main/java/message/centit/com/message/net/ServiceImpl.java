@@ -24,6 +24,8 @@ public class ServiceImpl {
             requestObj = new JSONObject(msgBody);
         } catch (JSONException e) {
             e.printStackTrace();
+            //如果转换json遇到异常泽不进行上传
+            return null;
         }
 
         return NetRequestController.sendStrBaseServletNew(task, handler, requestType, requestObj);

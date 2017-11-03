@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.centit.GlobalState;
 import com.centit.core.baseView.baseUI.MIPBaseService;
 
 import org.json.JSONException;
@@ -76,8 +77,8 @@ public class UpLoadService extends MIPBaseService {
                 String msgBody =intent.getStringExtra(EXTRA_MSG);
                 String sender=intent.getStringExtra(EXTRA_SENDER);
 
-                phoneNoStr= (String) SharedUtil.getValue(UpLoadService.this,SharedUtil.phoneNo,"");
-                webAddress= (String) SharedUtil.getValue(UpLoadService.this,SharedUtil.webAddress,"");
+                phoneNoStr= GlobalState.getInstance().getPhoneStrs();
+                webAddress= GlobalState.getInstance().getmIPAddr();
                 if (!TextUtils.isEmpty(phoneNoStr)&&!TextUtils.isEmpty(webAddress)){
                     if (phoneNoStr.contains(",")){
                         phoneList= phoneNoStr.split(",");

@@ -13,6 +13,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.centit.GlobalState;
+import com.centit.app.cmipConstant.Constant_Mgr;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,17 +34,23 @@ public class MainActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             LogUtil.d("");
             setContentView(R.layout.activity_main);
+            initDate();
             initView();
 
 
     }
+    private void initDate(){
+         //初始化APP配置
+         String url= Constant_Mgr.getMIP_BASEURL();
+         GlobalState.getInstance().setmRequestURL(url);
 
+    }
     private void initView(){
 
-         phoneNoEt= (EditText) findViewById(R.id.phoneEt);
+        phoneNoEt= (EditText) findViewById(R.id.phoneEt);
         webAddressEt= (EditText) findViewById(R.id.webAdressEt);
-        String phoneNo= (String) SharedUtil.getValue(this,SharedUtil.phoneNo,"");
-        String webAddress= (String) SharedUtil.getValue(this,SharedUtil.webAddress,"");
+        String phoneNo= GlobalState.getInstance().getPhoneStrs();
+        String webAddress= GlobalState.getInstance().getmIPAddr();
 
         phoneNoEt.setText(phoneNo);
         webAddressEt.setText(webAddress);
@@ -60,18 +69,26 @@ public class MainActivity extends AppCompatActivity {
      */
     private void saveConfig(){
         String phoneNo=phoneNoEt.getText().toString().trim();
-        String webAddress=webAddressEt.getText().toString().trim();
+        String ip = webAddressEt.getText().toString().trim();
         if (TextUtils.isEmpty(phoneNo)){
             SimpleDialog.show(this,"号码不能为空！");
             return;
         }
-        if (TextUtils.isEmpty(webAddress)){
+        if (TextUtils.isEmpty(ip)){
             SimpleDialog.show(this,"服务器地址不能为空！");
             return;
         }
+        String port = "";
+        GlobalState.getInstance().setmIPAddr(ip);
+        GlobalState.getInstance().setmPortNum(port);
+        String url = "http://" + ip;
+        if (!port.equals(""))
+        {
+            url = url + ":" + port;
+        }
         //保存到本地
-        SharedUtil.putValue(this,SharedUtil.phoneNo,phoneNo);
-        SharedUtil.putValue(this,SharedUtil.webAddress,webAddress);
+        GlobalState.getInstance().setmRequestURL(url);
+        GlobalState.getInstance().setPhoneStrs(phoneNo);
         Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
     }
 
