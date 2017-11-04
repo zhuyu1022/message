@@ -4,71 +4,198 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-   android:padding="16dp"
+
     tools:context="message.centit.com.message.MainActivity">
 
-    <!--<EditText-->
-    <!--android:id="@+id/phoneNoTv"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:hint="输入需要监听的手机号码"/>-->
-
-
-    <!--<android.support.v7.widget.RecyclerView-->
-    <!--android:id="@+id/phoneRecyclerView"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent">-->
-
-    <!--</android.support.v7.widget.RecyclerView>-->
-
-
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:id="@+id/addBtn"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_margin="16dp"-->
-    <!--android:src="@drawable/add"-->
-    <!--app:backgroundTint="@color/colorPrimaryDark" />-->
-
-    <TextView
-        android:id="@+id/phoneTv"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="手机号码："
-        android:textSize="25sp" />
+        android:background="@color/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/app_name"
+            android:textSize="20sp"
+            android:textColor="@android:color/white"/>
 
-    <EditText
-        android:layout_below="@id/phoneTv"
-        android:id="@+id/phoneEt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="多个号码“，”分割"
-        android:digits="0123456789,"/>
-    <TextView
-       android:id="@+id/webAdressTv"
-        android:layout_below="@id/phoneEt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint=""
-        android:text="服务端访问地址："
-        android:textSize="25sp" />
+    </android.support.v7.widget.Toolbar>
 
-    <EditText
-        android:id="@+id/webAdressEt"
-        android:layout_below="@id/webAdressTv"
+
+    <RelativeLayout
+        android:layout_below="@id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
-<Button
-    android:id="@+id/okBtn"
-    android:layout_below="@id/webAdressEt"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textSize="20sp"
-    android:background="@color/colorPrimary"
-    android:textColor="@android:color/white"
-    android:text="保存"
-    />
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/phoneTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="手机号码："
+            android:textSize="25sp" />
+
+        <EditText
+            android:layout_below="@id/phoneTv"
+            android:id="@+id/phoneEt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="多个号码“，”分割"
+            android:digits="0123456789,"/>
+        <TextView
+            android:id="@+id/webAdressTv"
+            android:layout_below="@id/phoneEt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint=""
+            android:text="服务端访问地址："
+            android:textSize="25sp" />
+
+        <EditText
+            android:id="@+id/webAdressEt"
+            android:layout_below="@id/webAdressTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+        <Button
+            android:id="@+id/okBtn"
+            android:layout_below="@id/webAdressEt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:background="@color/colorPrimary"
+            android:textColor="@android:color/white"
+            android:text="保存"
+            />
+
+        <LinearLayout
+            android:id="@+id/statisticLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="20dp"
+            android:layout_below="@id/okBtn"
+            android:orientation="horizontal">
+            <LinearLayout
+
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/total_count"
+                    style="@style/ItemTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="总短信数："
+                    />
+
+                <TextView
+                    android:id="@+id/textView"
+                    style="@style/ItemTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_below="@id/total_count"
+                    android:text="成功接收数：" />
+
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_below="@id/total_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="成功发送数："
+                    />
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_below="@id/total_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="失败接收数："
+                    />
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_below="@id/total_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="失败发送数："
+                    />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="1"
+                    />
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_below="@id/total_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="2"
+                    />
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_below="@id/total_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="3"
+                    />
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_below="@id/total_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="4"
+                    />
+                <TextView
+                    style="@style/ItemTextStyle"
+                    android:layout_below="@id/total_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="5"
+                    />
+
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+
+
+
+
+
+
+
+
+
+
 
 </RelativeLayout>

@@ -19,5 +19,4 @@ public class BatteryUtils {
         return battery;
     }
 
-
 }

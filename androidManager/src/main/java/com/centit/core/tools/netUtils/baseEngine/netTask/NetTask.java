@@ -314,6 +314,10 @@ public abstract class NetTask implements Runnable
         // if(taskViewHolder!=null)taskViewHolder=null;
         // if(taskObservable!=null)taskObservable=null;
         // if(context!=null)context=null;
+
+
+
+
     }
     
 }
