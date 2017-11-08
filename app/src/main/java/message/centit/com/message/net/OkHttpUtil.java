@@ -1,5 +1,9 @@
 package message.centit.com.message.net;
 
+import android.util.Log;
+
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -45,10 +49,24 @@ public class OkHttpUtil {
         return client;
     }
 
+    public static void post(String url, JSONObject jsonObject, Callback callback) {
+        if (jsonObject!=null){
+            Log.d("post:","url:"+url);
+            Log.d("post:","jsonObject:"+jsonObject.toString());
+            RequestBody body = RequestBody.create(JSON, jsonObject.toString());
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+            client.newCall(request).enqueue(callback);
+        }
 
+    }
 
 
     public static void post(String url, String json, Callback callback) {
+        Log.d("post:","url:"+url);
+        Log.d("post:","json:"+json);
         RequestBody body = RequestBody.create(JSON, json);
         Request request = new Request.Builder()
                 .url(url)

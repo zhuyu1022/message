@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import message.centit.com.message.database.FailMesage;
+import message.centit.com.message.database.MsgDatebaseManager;
 import message.centit.com.message.net.ServiceImpl;
 import message.centit.com.message.util.LogUtil;
 import message.centit.com.message.util.SharedUtil;
@@ -44,7 +46,14 @@ public class UpLoadService extends MIPBaseService {
     public static final String EXTRA_MSG = "msgBody";
     public static final String EXTRA_SENDER = "sender";
 
+        private static final String MSG_START="*";
+    private static final String MSG_END="#";
+    /**   失败类型    1  失败发送 **/
+    private static final String TYPE_FAILSEND="0";
+    /**   失败类型    0   失败接收  **/
+    private static final String TYPE_FAILACCEPT="1";
 
+    private MsgDatebaseManager dbManager;
     String phoneNoStr;
     String webAddress;
     private String[] phoneList;
@@ -67,13 +76,25 @@ public class UpLoadService extends MIPBaseService {
 
     public UpLoadService() {
     }
-
+    /**   短信接收时间**/
+    String receiveTime="";
+    /**短信内容**/
+    String msgBody="" ;
+    /**发送方**/
+    String sender="";
     int total=0;
     int  sucAccept=0;
     int  sucSend=0;
     int  failAccept=0;
     int  failSend=0;
     UpLoadBinder mBinder=new UpLoadBinder();
+    //临时存放短信内容
+    String tempMsg="";
+    //记录上传服务器之前的短信临时内容
+String msgStrBeforeUpload="";
+
+
+
     //用于获取service实例
     public class UpLoadBinder extends Binder {
         public UpLoadService getService() {
@@ -92,7 +113,7 @@ public class UpLoadService extends MIPBaseService {
         LogUtil.d("");
         super.onCreate();
         startForeground();
-
+        dbManager=new MsgDatebaseManager(this);
 
     }
 
@@ -100,29 +121,83 @@ public class UpLoadService extends MIPBaseService {
     public int onStartCommand(final Intent intent, int flags, int startId) {
 
         if (intent!=null){
-            String receiveTime = intent.getStringExtra(EXTRA_TIME);
-            String msgBody = intent.getStringExtra(EXTRA_MSG);
-            String sender = intent.getStringExtra(EXTRA_SENDER);
+             receiveTime = intent.getStringExtra(EXTRA_TIME);
+            msgBody = intent.getStringExtra(EXTRA_MSG);
+             sender = intent.getStringExtra(EXTRA_SENDER);
+
+            total= (int) SharedUtil.getValue(this,SharedUtil.total,0);
+            sucAccept=(int) SharedUtil.getValue(this,SharedUtil.sucAccept,0);
+            sucSend=(int) SharedUtil.getValue(this,SharedUtil.sucSend,0);
+            failAccept=(int) SharedUtil.getValue(this,SharedUtil.failAccept,0);
+            failSend=(int) SharedUtil.getValue(this,SharedUtil.failSend,0);
 
             phoneNoStr = GlobalState.getInstance().getPhoneStrs();
             webAddress = GlobalState.getInstance().getmIPAddr();
+
             if (!TextUtils.isEmpty(phoneNoStr) && !TextUtils.isEmpty(webAddress)) {
                 if (phoneNoStr.contains(",")) {
                     phoneList = phoneNoStr.split(",");
                 } else {
                     phoneList = new String[]{phoneNoStr};
-
                 }
+
+                for (int i = 0; i < phoneList.length; i++) {      //如果是用户输入的其中的一个号码，就上传服务器
+                    if (sender.equals(phoneList[i].trim())) {
+
+                        //到这说明成功接收到一条指定号码的短信
+                        total++;
+
+                        //保存
+                        SharedUtil.putValue(this,SharedUtil.total,total);
+                        if (listener!=null){
+                            listener.onResult();
+                        }
+                        //当短信内容以结束标志结束时才上传服务器
+                        if (msgBody.endsWith(MSG_END)){
+
+                            //截取"#"之前的短信内容，并存入临时变量
+                            tempMsg=msgBody.substring(0,msgBody.lastIndexOf(MSG_END));
+
+                            //上传服务器之前先判断json格式是否正确,笨方法，但是能解决问题
+                            try {
+                                new JSONObject(tempMsg);
+                                //如果没有异常 说明json格式正确，接收成功！
+                                sucAccept++;
+                                //保存
+                                SharedUtil.putValue(this,SharedUtil.sucAccept,sucAccept);
+                                if (listener!=null){
+                                    listener.onResult();
+                                }
+
+                                msgStrBeforeUpload=tempMsg;
+                                uploadMessage(tempMsg);
+                                //上传之后清空
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                //出现异常 说明接收失败，传过来的json格式有问题
+                                failAccept++;
+                                SharedUtil.putValue(this,SharedUtil.failAccept,failAccept);
+                                FailMesage   failMesage=new FailMesage(sender,receiveTime,tempMsg,"json格式错误",TYPE_FAILACCEPT);
+                                //只有失败的情况才要加入数据库
+                                dbManager.add(failMesage);
+                                if (listener!=null){
+                                    listener.onResult();
+                                }
+
+                            }
+
+                            tempMsg="";
+                        }else{
+                            tempMsg=msgBody;
+                        }
+                        break;
+                    }
+                }
+
+
             }
 
-            for (int i = 0; i < phoneList.length; i++) {      //如果是其中的一个号码，就上传服务器
-                if (sender.equals(phoneList[i].trim())) {
-                   // Toast.makeText(UpLoadService.this, msgBody, Toast.LENGTH_LONG).show();
-                    uploadMessage(msgBody);
-
-                    break;
-                }
-            }
             LogUtil.d("uploadservice服务启动");
             LogUtil.d("receiveTime:" + receiveTime + "msgBody:" + msgBody + "sender:" + sender);
         }
@@ -152,7 +227,6 @@ public class UpLoadService extends MIPBaseService {
      */
     private void uploadMessage(String msgBody) {
 
-
        /* {
             "messageid": "消息id",
                 "content": "消息内容",
@@ -171,12 +245,35 @@ public class UpLoadService extends MIPBaseService {
         @Override
         public void onFailure(Call call, IOException e) {
 
+            //网络异常 说明发送失败
+            failSend++;
+            SharedUtil.putValue(UpLoadService.this,SharedUtil.failSend,failSend);
+            FailMesage failMesage=new FailMesage(sender,receiveTime,msgStrBeforeUpload,"网络链接异常",TYPE_FAILSEND);
+            //只有失败的情况才要加入数据库
+            dbManager.add(failMesage);
+
+            if (listener!=null){
+                listener.onResult();
+            }
         }
 
         @Override
         public void onResponse(Call call, Response response) throws IOException {
 
-
+            if (response.code()==200){
+                sucSend++;
+                SharedUtil.putValue(UpLoadService.this,SharedUtil.sucSend,sucSend);
+                if (listener!=null){
+                    listener.onResult();
+                }
+            }else{
+                //网络异常 说明发送失败
+                failSend++;
+                SharedUtil.putValue(UpLoadService.this,SharedUtil.failSend,failSend);
+                FailMesage failMesage=new FailMesage(sender,receiveTime,msgStrBeforeUpload,"链接服务器接口异常",TYPE_FAILSEND);
+                //只有失败的情况才要加入数据库
+                dbManager.add(failMesage);
+            }
             String result = response.body().string();
             Log.d("result", result);
             try {

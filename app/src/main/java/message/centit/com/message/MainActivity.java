@@ -100,11 +100,11 @@ public class MainActivity extends AppCompatActivity {
        failSendTv= (TextView) findViewById(R.id.failSendTv);
 
 
-        totalTv.setText(total);
-        sucAcceptTv.setText(sucAccept);
-        sucSendTv.setText(sucSend);
-        failAcceptTv.setText(failAccept);
-        failSendTv.setText(failSend);
+        totalTv.setText(total+"");
+        sucAcceptTv.setText(sucAccept+"");
+        sucSendTv.setText(sucSend+"");
+        failAcceptTv.setText(failAccept+"");
+        failSendTv.setText(failSend+"");
 
         String phoneNo= GlobalState.getInstance().getPhoneStrs();
         phoneNoEt.setText(phoneNo);
@@ -207,7 +207,22 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainActivity.this, "上传短信成功！", Toast.LENGTH_LONG).show();
+
+
+
+                            total= (int) SharedUtil.getValue(MainActivity.this,SharedUtil.total,0);
+                            sucAccept=(int) SharedUtil.getValue(MainActivity.this,SharedUtil.sucAccept,0);
+                            sucSend=(int) SharedUtil.getValue(MainActivity.this,SharedUtil.sucSend,0);
+                            failAccept=(int) SharedUtil.getValue(MainActivity.this,SharedUtil.failAccept,0);
+                            failSend=(int) SharedUtil.getValue(MainActivity.this,SharedUtil.failSend,0);
+
+
+                            totalTv.setText(total+"");
+                            sucAcceptTv.setText(sucAccept+"");
+                            sucSendTv.setText(sucSend+"");
+                            failAcceptTv.setText(failAccept+"");
+                            failSendTv.setText(failSend+"");
+
                         }
                     });
                 }
@@ -231,6 +246,8 @@ public class MainActivity extends AppCompatActivity {
         unbindService(connection);
         LogUtil.d("");
     }
+
+
 
 
 

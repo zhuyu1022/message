@@ -22,23 +22,17 @@ public class ServiceImpl {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     public static void  acceptMessage(int requestType, String msgBody, Callback callback)
     {   GlobalState.getInstance().setmMethodName("/acceptMessage");
+        JSONObject  requestObj=null;
+        try {
+             requestObj = new JSONObject(msgBody);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         OkHttpUtil.getInstance();
-        OkHttpUtil.post(Constant_Mgr.getMIP_BAES_URL(),msgBody,callback);
+        OkHttpUtil.post(Constant_Mgr.getMIP_BAES_URL(),requestObj,callback);
     }
 
 
