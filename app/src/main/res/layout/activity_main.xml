@@ -33,27 +33,32 @@
         android:padding="16dp">
 
         <TextView
+            style="@style/ItemTextStyle"
             android:id="@+id/phoneTv"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="手机号码："
-            android:textSize="25sp" />
+            android:textSize="20sp"
+             />
 
         <EditText
-            android:layout_below="@id/phoneTv"
             android:id="@+id/phoneEt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="多个号码“，”分割"
-            android:digits="0123456789,"/>
+            android:hint="多个号码以“，”分割"
+            android:digits="0123456789,"
+            android:layout_below="@+id/phoneTv"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
         <TextView
+            style="@style/ItemTextStyle"
             android:id="@+id/webAdressTv"
             android:layout_below="@id/phoneEt"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint=""
             android:text="服务端访问地址："
-            android:textSize="25sp" />
+            android:textSize="20sp" />
 
         <EditText
             android:id="@+id/webAdressEt"
@@ -63,11 +68,13 @@
             />
         <Button
             android:id="@+id/okBtn"
+            android:layout_marginTop="10dp"
             android:layout_below="@id/webAdressEt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"
-            android:background="@color/colorPrimary"
+            android:backgroundTint="@color/colorPrimary"
+
             android:textColor="@android:color/white"
             android:text="保存"
             />
@@ -76,7 +83,8 @@
             android:id="@+id/statisticLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="20dp"
             android:layout_below="@id/okBtn"
             android:orientation="horizontal">
             <LinearLayout
@@ -85,48 +93,52 @@
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
+                <include layout="@layout/line_layout" />
                 <TextView
-                    android:id="@+id/total_count"
+
                     style="@style/ItemTextStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:text="总短信数："
                     />
-
+<include layout="@layout/line_layout" />
                 <TextView
-                    android:id="@+id/textView"
+
                     style="@style/ItemTextStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:layout_below="@id/total_count"
-                    android:text="成功接收数：" />
 
+                    android:text="成功接收数：" />
+                <include layout="@layout/line_layout" />
                 <TextView
                     style="@style/ItemTextStyle"
-                    android:layout_below="@id/total_count"
+
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:text="成功发送数："
                     />
+                <include layout="@layout/line_layout" />
                 <TextView
                     style="@style/ItemTextStyle"
-                    android:layout_below="@id/total_count"
+
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:text="失败接收数："
                     />
+                <include layout="@layout/line_layout" />
                 <TextView
                     style="@style/ItemTextStyle"
-                    android:layout_below="@id/total_count"
+
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:text="失败发送数："
                     />
+                <include layout="@layout/line_layout" />
 
 
             </LinearLayout>
@@ -137,45 +149,93 @@
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
+                <include layout="@layout/line_layout" />
                 <TextView
+                    android:id="@+id/totalTv"
                     style="@style/ItemTextStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:text="1"
+                    android:text="21"
                     />
+                <include layout="@layout/line_layout" />
                 <TextView
+                    android:id="@+id/sucAcceptTv"
                     style="@style/ItemTextStyle"
-                    android:layout_below="@id/total_count"
+
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:text="2"
+                    android:text="20"
                     />
+                <include layout="@layout/line_layout" />
                 <TextView
+                    android:id="@+id/sucSendTv"
                     style="@style/ItemTextStyle"
-                    android:layout_below="@id/total_count"
+
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:text="3"
+                    android:text="18"
                     />
-                <TextView
-                    style="@style/ItemTextStyle"
-                    android:layout_below="@id/total_count"
-                    android:layout_width="wrap_content"
+                <include layout="@layout/line_layout" />
+                <LinearLayout
+                    android:id="@+id/failAcceptLl"
+
+                    android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:text="4"
-                    />
-                <TextView
-                    style="@style/ItemTextStyle"
-                    android:layout_below="@id/total_count"
-                    android:layout_width="wrap_content"
+                    android:layout_weight="1">
+                    <TextView
+
+                        android:id="@+id/failAcceptTv"
+                        style="@style/ItemTextStyle"
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+
+                        android:text="2"
+                        />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"/>
+
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:layout_width="25dp"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/go" />
+
+
+                </LinearLayout>
+                <include layout="@layout/line_layout" />
+
+                <LinearLayout
+                    android:id="@+id/failSendLl"
+                    android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:text="5"
-                    />
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/failSendTv"
+                        style="@style/ItemTextStyle"
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="3"
+                        />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/go"/>
+
+                    
+                </LinearLayout>
+
+                <include layout="@layout/line_layout" />
 
 
             </LinearLayout>

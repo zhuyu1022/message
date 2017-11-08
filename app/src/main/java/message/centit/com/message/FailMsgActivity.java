@@ -4,6 +4,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
 public class FailMsgActivity extends AppCompatActivity {
     Toolbar toolbar;
@@ -23,6 +24,18 @@ public class FailMsgActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         //设置不显示默认标题
         actionBar.setDisplayShowTitleEnabled(false);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

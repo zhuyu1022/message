@@ -12,6 +12,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,6 +41,22 @@ public class MainActivity extends AppCompatActivity {
     private Button okBtn;
     private LinearLayout statisticLayout;
 
+    private LinearLayout failAcceptLayout;
+    private LinearLayout failSendLayout;
+
+    private TextView totalTv;
+    private TextView sucAcceptTv;
+    private TextView sucSendTv;
+    private TextView failAcceptTv;
+    private TextView failSendTv;
+
+
+    int total=0;
+    int  sucAccept=0;
+    int  sucSend=0;
+    int  failAccept=0;
+    int  failSend=0;
+
     private static final String DIALOG_ADD="AddPhoneDialog";
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -58,18 +75,48 @@ public class MainActivity extends AppCompatActivity {
          String url= Constant_Mgr.getMIP_BASEURL();
          GlobalState.getInstance().setmRequestURL(url);
 
+        total= (int) SharedUtil.getValue(this,SharedUtil.total,0);
+          sucAccept=(int) SharedUtil.getValue(this,SharedUtil.sucAccept,0);
+         sucSend=(int) SharedUtil.getValue(this,SharedUtil.sucSend,0);
+        failAccept=(int) SharedUtil.getValue(this,SharedUtil.failAccept,0);
+         failSend=(int) SharedUtil.getValue(this,SharedUtil.failSend,0);
+
+
     }
     private void initView(){
 
         statisticLayout= (LinearLayout) findViewById(R.id.statisticLayout);
 
+         failAcceptLayout=(LinearLayout) findViewById(R.id.failAcceptLl);
+        failSendLayout=(LinearLayout) findViewById(R.id.failSendLl);
+
         phoneNoEt= (EditText) findViewById(R.id.phoneEt);
         webAddressEt= (EditText) findViewById(R.id.webAdressEt);
-        String phoneNo= GlobalState.getInstance().getPhoneStrs();
-        String webAddress= GlobalState.getInstance().getmIPAddr();
 
+       totalTv= (TextView) findViewById(R.id.totalTv);
+         sucAcceptTv= (TextView) findViewById(R.id.sucAcceptTv);
+      sucSendTv= (TextView) findViewById(R.id.sucSendTv);
+        failAcceptTv= (TextView) findViewById(R.id.failAcceptTv);
+       failSendTv= (TextView) findViewById(R.id.failSendTv);
+
+
+        totalTv.setText(total);
+        sucAcceptTv.setText(sucAccept);
+        sucSendTv.setText(sucSend);
+        failAcceptTv.setText(failAccept);
+        failSendTv.setText(failSend);
+
+        String phoneNo= GlobalState.getInstance().getPhoneStrs();
         phoneNoEt.setText(phoneNo);
-        webAddressEt.setText(webAddress);
+
+
+        String url= GlobalState.getInstance().getmIPAddr();
+        String port= GlobalState.getInstance().getmPortNum();
+        if (TextUtils.isEmpty(port)){
+            webAddressEt.setText(url);
+        }else {
+            webAddressEt.setText(url+":"+port);
+        }
 
         okBtn= (Button) findViewById(R.id.okBtn);
         okBtn.setOnClickListener(new View.OnClickListener() {
@@ -79,7 +126,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        statisticLayout.setOnClickListener(new View.OnClickListener() {
+
+        failAcceptLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent =new Intent(MainActivity.this,FailMsgActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+        failSendLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent =new Intent(MainActivity.this,FailMsgActivity.class);
@@ -89,21 +146,37 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+
     /**
      * 保存配置
      */
     private void saveConfig(){
         String phoneNo=phoneNoEt.getText().toString().trim();
-        String ip = webAddressEt.getText().toString().trim();
+        String address = webAddressEt.getText().toString().trim();
         if (TextUtils.isEmpty(phoneNo)){
             SimpleDialog.show(this,"号码不能为空！");
             return;
         }
-        if (TextUtils.isEmpty(ip)){
+        if (TextUtils.isEmpty(address)){
             SimpleDialog.show(this,"服务器地址不能为空！");
             return;
         }
-        String port = "";
+
+        String ip="";
+        String port="";
+        if (address.contains(":")){
+            //避免输入了“：”，但是没有输入端口号
+            if (address.split(":").length==2){
+                ip= address.split(":")[0];
+                port = address.split(":")[1];
+            }else{
+                Toast.makeText(this, "你输入的ip地址有误,重新输入!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }else{
+            ip= address;
+        }
         GlobalState.getInstance().setmIPAddr(ip);
         GlobalState.getInstance().setmPortNum(port);
         String url = "http://" + ip;
@@ -111,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
         {
             url = url + ":" + port;
         }
-        //保存到本地
         GlobalState.getInstance().setmRequestURL(url);
         GlobalState.getInstance().setPhoneStrs(phoneNo);
         Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
@@ -129,16 +201,15 @@ public class MainActivity extends AppCompatActivity {
             upLoadBinder = (UpLoadService.UpLoadBinder) iBinder;
             //调用getservice方法获取service实例
             UpLoadService upLoadService= upLoadBinder.getService();
-            upLoadService.setOnUploadSuccess(new UpLoadService.OnUploadSuccessListener() {
+            upLoadService.setOnUploadListener(new UpLoadService.OnUploadListener() {
                 @Override
-                public void onSuccess() {
+                public void onResult() {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(MainActivity.this, "上传短信成功！", Toast.LENGTH_LONG).show();
                         }
                     });
-
                 }
             });
         }

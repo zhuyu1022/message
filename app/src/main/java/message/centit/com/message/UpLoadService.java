@@ -68,7 +68,11 @@ public class UpLoadService extends MIPBaseService {
     public UpLoadService() {
     }
 
-
+    int total=0;
+    int  sucAccept=0;
+    int  sucSend=0;
+    int  failAccept=0;
+    int  failSend=0;
     UpLoadBinder mBinder=new UpLoadBinder();
     //用于获取service实例
     public class UpLoadBinder extends Binder {
@@ -115,7 +119,7 @@ public class UpLoadService extends MIPBaseService {
                 if (sender.equals(phoneList[i].trim())) {
                    // Toast.makeText(UpLoadService.this, msgBody, Toast.LENGTH_LONG).show();
                     uploadMessage(msgBody);
-                    // downloadConfParams();
+
                     break;
                 }
             }
@@ -134,8 +138,8 @@ public class UpLoadService extends MIPBaseService {
                 .setContentTitle("短信监听")
                 .setContentText("正在运行，请勿关闭")
                 .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+                .setSmallIcon(R.mipmap.icon_logo)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.icon_logo))
                 .setContentIntent(pi)
                 .build();
         startForeground(1, notification);
@@ -183,7 +187,7 @@ public class UpLoadService extends MIPBaseService {
                     if (retCode != null && retCode.equals("0")) {
 
                              if (listener!=null){
-                                 listener.onSuccess();
+                                 listener.onResult();
                              }
 
                         return;
@@ -196,12 +200,12 @@ public class UpLoadService extends MIPBaseService {
 
         }
     };
-    OnUploadSuccessListener listener;
-public interface  OnUploadSuccessListener{
-        void onSuccess();
+     OnUploadListener listener;
+public interface  OnUploadListener{
+        void onResult();
     }
 
-    public void setOnUploadSuccess(OnUploadSuccessListener listener){
+    public void setOnUploadListener( OnUploadListener listener){
          this. listener=listener;
     }
 

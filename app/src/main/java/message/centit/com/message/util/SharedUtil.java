@@ -3,11 +3,18 @@ package message.centit.com.message.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.widget.TextView;
+
+import message.centit.com.message.R;
 
 public class SharedUtil {
 
 
-
+	public static final String total="total";
+	public static final String sucAccept="sucAccept";
+	public static final String sucSend="sucSend";
+	public static final String failAccept="failAccept";
+	public static final String failSend="failSend";
 
 
 	public static void putValue(Context context, String key, Object value) {
