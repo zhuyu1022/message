@@ -160,8 +160,8 @@ String msgStrBeforeUpload="";
                             if (listener!=null){
                                 listener.onResult();
                             }
-                            //截取"#"之前的短信内容，并存入临时变量
-                            tempMsg=msgBody.substring(0,msgBody.lastIndexOf(MSG_END));
+                            //截取"#"之前的短信内容，拼接上一次的tempMsg，并存入临时变量
+                            tempMsg=tempMsg+msgBody.substring(0,msgBody.lastIndexOf(MSG_END));
 
 
 
@@ -179,7 +179,7 @@ String msgStrBeforeUpload="";
 
                                 msgStrBeforeUpload=tempMsg;
                                 uploadMessage(tempMsg);
-                                //上传之后清空
+
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -194,7 +194,7 @@ String msgStrBeforeUpload="";
                                 }
 
                             }
-
+                            //上传之后清空
                             tempMsg="";
                         }else{
                             tempMsg=msgBody;
@@ -291,6 +291,15 @@ String msgStrBeforeUpload="";
                              }
 
                         return;
+                    }else{
+                        failSend++;
+                        SharedUtil.putValue(UpLoadService.this,SharedUtil.failSend,failSend);
+                        FailMesage failMesage=new FailMesage(sender,receiveTime,msgStrBeforeUpload,"服务器解析数据失败",TYPE_FAILSEND);
+                        //只有失败的情况才要加入数据库
+                        dbManager.add(failMesage);
+                        if (listener!=null){
+                            listener.onResult();
+                        }
                     }
                 }
 
