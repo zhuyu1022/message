@@ -21,12 +21,24 @@ import okhttp3.Callback;
 public class ServiceImpl {
 
 
-
+    /**
+     * 上传短信
+     * @param requestType
+     * @param msgBody
+     * @param callback
+     */
     public static void  acceptMessage(int requestType, String msgBody, Callback callback)
     {   GlobalState.getInstance().setmMethodName("/acceptMessage");
+        String sendNewsUrl=GlobalState.getInstance().getSendNewsUrl();
+        String sendNewsAgentid=GlobalState.getInstance().getSendNewsAgentid();
+        String sendNewsType=GlobalState.getInstance().getSendNewsType();
+
         JSONObject  requestObj=null;
         try {
              requestObj = new JSONObject(msgBody);
+            requestObj.put("sendNewsUrl",sendNewsUrl);
+            requestObj.put("sendNewsAgentid",sendNewsAgentid);
+            requestObj.put("sendNewsType",sendNewsType);
         } catch (JSONException e) {
             e.printStackTrace();
         }

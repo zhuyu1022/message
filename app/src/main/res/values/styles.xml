@@ -10,7 +10,7 @@
 
 
     <style name="ItemTextStyle">
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@android:color/black</item>
         <item name="android:gravity">center</item>
     </style>

@@ -26,49 +26,113 @@
     </android.support.v7.widget.Toolbar>
 
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_below="@id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:orientation="vertical"
+        android:padding="10dp">
 
-        <TextView
-            style="@style/ItemTextStyle"
-            android:id="@+id/phoneTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="手机号码："
-            android:textSize="20sp"
-             />
-
-        <EditText
-            android:id="@+id/phoneEt"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="多个号码以“，”分割"
-            android:digits="0123456789,"
-            android:layout_below="@+id/phoneTv"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:orientation="horizontal">
+            <TextView
+                style="@style/ItemTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="手机号码："
+                android:textSize="20sp"
+                />
+
+            <EditText
+                android:id="@+id/phoneEt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="多个号码以“，”分割"
+                android:digits="0123456789,"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+        </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <TextView
             style="@style/ItemTextStyle"
-            android:id="@+id/webAdressTv"
-            android:layout_below="@id/phoneEt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint=""
-            android:text="服务端访问地址："
+            android:text="服务端地址："
             android:textSize="20sp" />
 
         <EditText
             android:id="@+id/webAdressEt"
-            android:layout_below="@id/webAdressTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/ItemTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint=""
+            android:text="跳转url："
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/sendNewsUrlEt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            style="@style/ItemTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint=""
+            android:text="跳转agentid："
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/sendNewsAgentidEt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            style="@style/ItemTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint=""
+            android:text="跳转类型："
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/sendNewsTypeEt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
         <Button
             android:id="@+id/okBtn"
-            android:layout_marginTop="10dp"
+
             android:layout_below="@id/webAdressEt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -82,8 +146,7 @@
             android:id="@+id/statisticLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="40dp"
-            android:layout_marginBottom="20dp"
+
             android:layout_below="@id/okBtn"
             android:orientation="horizontal">
             <LinearLayout
@@ -243,7 +306,7 @@
         </LinearLayout>
 
 
-    </RelativeLayout>
+    </LinearLayout>
 
 
 

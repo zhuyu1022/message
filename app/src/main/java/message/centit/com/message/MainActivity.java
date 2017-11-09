@@ -43,6 +43,14 @@ public class MainActivity extends AppCompatActivity {
 
     private LinearLayout failAcceptLayout;
     private LinearLayout failSendLayout;
+//
+//    "sendNewsUrl":"消息推送跳转url"，
+//            "sendNewsAgentid":"消息推送跳转agentid"，
+//            "sendNewsType":"消息推送跳转类型"
+    private EditText sendNewsUrlEt;
+    private EditText sendNewsAgentidEt;
+    private EditText sendNewsTypeEt;
+
 
     private TextView totalTv;
     private TextView sucAcceptTv;
@@ -51,11 +59,16 @@ public class MainActivity extends AppCompatActivity {
     private TextView failSendTv;
 
 
+    private String sendNewsUrl;
+    private String sendNewsAgentid;
+    private String sendNewsType;
+
     int total=0;
     int  sucAccept=0;
     int  sucSend=0;
     int  failAccept=0;
     int  failSend=0;
+
 
     private static final String DIALOG_ADD="AddPhoneDialog";
         @Override
@@ -75,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
          String url= Constant_Mgr.getMIP_BASEURL();
          GlobalState.getInstance().setmRequestURL(url);
 
+        sendNewsUrl=GlobalState.getInstance().getSendNewsUrl();
+     sendNewsAgentid=GlobalState.getInstance().getSendNewsAgentid();
+        sendNewsType=GlobalState.getInstance().getSendNewsType();
+
         total= (int) SharedUtil.getValue(this,SharedUtil.total,0);
           sucAccept=(int) SharedUtil.getValue(this,SharedUtil.sucAccept,0);
          sucSend=(int) SharedUtil.getValue(this,SharedUtil.sucSend,0);
@@ -93,12 +110,20 @@ public class MainActivity extends AppCompatActivity {
         phoneNoEt= (EditText) findViewById(R.id.phoneEt);
         webAddressEt= (EditText) findViewById(R.id.webAdressEt);
 
+        sendNewsUrlEt=(EditText) findViewById(R.id.sendNewsUrlEt);
+       sendNewsAgentidEt=(EditText) findViewById(R.id.sendNewsAgentidEt);
+        sendNewsTypeEt=(EditText) findViewById(R.id.sendNewsTypeEt);
+
+
        totalTv= (TextView) findViewById(R.id.totalTv);
          sucAcceptTv= (TextView) findViewById(R.id.sucAcceptTv);
       sucSendTv= (TextView) findViewById(R.id.sucSendTv);
         failAcceptTv= (TextView) findViewById(R.id.failAcceptTv);
        failSendTv= (TextView) findViewById(R.id.failSendTv);
 
+        sendNewsUrlEt.setText(sendNewsUrl);
+                sendNewsAgentidEt.setText(sendNewsAgentid);
+        sendNewsTypeEt.setText(sendNewsType);
 
         totalTv.setText(total+"");
         sucAcceptTv.setText(sucAccept+"");
@@ -154,12 +179,29 @@ public class MainActivity extends AppCompatActivity {
     private void saveConfig(){
         String phoneNo=phoneNoEt.getText().toString().trim();
         String address = webAddressEt.getText().toString().trim();
+        String sendNewsUrl=sendNewsUrlEt.getText().toString().trim();
+        String sendNewsAgentid=sendNewsAgentidEt.getText().toString().trim();
+         String sendNewsType=sendNewsTypeEt.getText().toString().trim();
+
+
         if (TextUtils.isEmpty(phoneNo)){
             SimpleDialog.show(this,"号码不能为空！");
             return;
         }
         if (TextUtils.isEmpty(address)){
             SimpleDialog.show(this,"服务器地址不能为空！");
+            return;
+        }
+        if (TextUtils.isEmpty(sendNewsUrl)){
+            SimpleDialog.show(this,"消息推送跳转url不能为空！");
+            return;
+        }
+        if (TextUtils.isEmpty(sendNewsAgentid)){
+            SimpleDialog.show(this,"消息推送跳转agentid不能为空！");
+            return;
+        }
+        if (TextUtils.isEmpty(sendNewsType)){
+            SimpleDialog.show(this,"消息推送跳转类型不能为空！");
             return;
         }
 
@@ -186,6 +228,11 @@ public class MainActivity extends AppCompatActivity {
         }
         GlobalState.getInstance().setmRequestURL(url);
         GlobalState.getInstance().setPhoneStrs(phoneNo);
+
+        GlobalState.getInstance().setSendNewsUrl(sendNewsUrl);
+        GlobalState.getInstance().setSendNewsAgentid(sendNewsAgentid);
+        GlobalState.getInstance().setSendNewsType(sendNewsType);
+
         Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
     }
 

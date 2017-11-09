@@ -2559,7 +2559,15 @@ public class GlobalState extends Application
         setValue("mMethodName", mMethodName);
     }
     private String                   PhoneStrs        = "";
-
+    private String                   sendNewsUrl ="";
+    private String                   sendNewsAgentid="";
+    private String                   sendNewsType ="";
+    
+   //   "sendNewsUrl":"消息推送跳转url"，
+//            "sendNewsAgentid":"消息推送跳转agentid"，
+//            "sendNewsType":"消息推送跳转类型"
+    
+    
     /**
      * 获取手机号码字符串
      * @return
@@ -2582,5 +2590,57 @@ public class GlobalState extends Application
     }
 
 
+    public String getSendNewsUrl()
+    {
+        if (sendNewsUrl == null || "".equals(sendNewsUrl))
+        {
+            sendNewsUrl = (String)getVaule("sendNewsUrl", Constant_Mgr.sendNewsUrl);
+        }
+
+        return sendNewsUrl;
+    }
+
+
+    public void setSendNewsUrl(String sendNewsUrl)
+    {
+        this.sendNewsUrl = sendNewsUrl;
+        setValue("sendNewsUrl", sendNewsUrl);
+    }
+
+
+    public String getSendNewsAgentid()
+    {
+        if (sendNewsAgentid == null || "".equals(sendNewsAgentid))
+        {
+            sendNewsAgentid = (String)getVaule("sendNewsAgentid", Constant_Mgr.sendNewsAgentid);
+        }
+
+        return sendNewsAgentid;
+    }
+
+
+    public void setSendNewsAgentid(String sendNewsAgentid)
+    {
+        this.sendNewsAgentid = sendNewsAgentid;
+        setValue("sendNewsAgentid", sendNewsAgentid);
+    }
+
+
+    public String getSendNewsType()
+    {
+        if (sendNewsType == null || "".equals(sendNewsType))
+        {
+            sendNewsType = (String)getVaule("sendNewsType", Constant_Mgr.sendNewsType);
+        }
+
+        return sendNewsType;
+    }
+
+
+    public void setSendNewsType(String sendNewsType)
+    {
+        this.sendNewsType = sendNewsType;
+        setValue("sendNewsType", sendNewsType);
+    }
 
 }

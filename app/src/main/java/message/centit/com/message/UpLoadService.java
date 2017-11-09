@@ -46,7 +46,7 @@ public class UpLoadService extends MIPBaseService {
     public static final String EXTRA_MSG = "msgBody";
     public static final String EXTRA_SENDER = "sender";
 
-        private static final String MSG_START="*";
+        private static final String MSG_START="【嘉兴公安】";
     private static final String MSG_END="#";
     /**   失败类型    1  失败发送 **/
     private static final String TYPE_FAILSEND="0";
@@ -143,20 +143,28 @@ String msgStrBeforeUpload="";
 
                 for (int i = 0; i < phoneList.length; i++) {      //如果是用户输入的其中的一个号码，就上传服务器
                     if (sender.equals(phoneList[i].trim())) {
+                        msgBody=msgBody.trim();
 
-                        //到这说明成功接收到一条指定号码的短信
-                        total++;
-
-                        //保存
-                        SharedUtil.putValue(this,SharedUtil.total,total);
-                        if (listener!=null){
-                            listener.onResult();
+                        if (msgBody.startsWith(MSG_START)){
+                            msgBody=msgBody.substring(MSG_START.length());
                         }
+
+
                         //当短信内容以结束标志结束时才上传服务器
                         if (msgBody.endsWith(MSG_END)){
+                            //到这说明成功接收到一条指定号码的短信，切短信以#结尾
+                            total++;
 
+                            //保存
+                            SharedUtil.putValue(this,SharedUtil.total,total);
+                            if (listener!=null){
+                                listener.onResult();
+                            }
                             //截取"#"之前的短信内容，并存入临时变量
                             tempMsg=msgBody.substring(0,msgBody.lastIndexOf(MSG_END));
+
+
+
 
                             //上传服务器之前先判断json格式是否正确,笨方法，但是能解决问题
                             try {
@@ -260,13 +268,7 @@ String msgStrBeforeUpload="";
         @Override
         public void onResponse(Call call, Response response) throws IOException {
 
-            if (response.code()==200){
-                sucSend++;
-                SharedUtil.putValue(UpLoadService.this,SharedUtil.sucSend,sucSend);
-                if (listener!=null){
-                    listener.onResult();
-                }
-            }else{
+            if (response.code()!=200){
                 //网络异常 说明发送失败
                 failSend++;
                 SharedUtil.putValue(UpLoadService.this,SharedUtil.failSend,failSend);
@@ -282,7 +284,8 @@ String msgStrBeforeUpload="";
                 if (jsonObj != null) {
                     String retCode = jsonObj.optString("retCode");
                     if (retCode != null && retCode.equals("0")) {
-
+                                 sucSend++;
+                                 SharedUtil.putValue(UpLoadService.this,SharedUtil.sucSend,sucSend);
                              if (listener!=null){
                                  listener.onResult();
                              }

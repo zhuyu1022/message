@@ -27,60 +27,31 @@ public class Constant_Mgr
     
     public static final String AppType                  = "zhyy";
     
-    // ===============URL 定义==============================
-    /**
-     * 使用URL的默认地址
-     */
-    // public static String mConIP = "192.168.137.9";
-    
-    // public static String mConIP = "192.168.137.205";
-    
-    // public static String mConIP = "222.190.119.86";
-    
-    // public static String mConIP = "app.centit.com";
-    
-    // public static String mConIP = "192.168.135.50";
-    
-    //
-    // public static String mConPort = "8080";
-    
-    // public static String mConPort = "8666";
-    
-    // 192.168.135.50：8080
-    
-    // 测试环境 海尔
-    // public static String mConIP = "192.168.131.104";
-    //
-    // public static String mConPort = "8080";
-    
-    // 测试环境 产品
-    // public static String mConIP = "192.168.131.102";
-    //
-    // public static String mConPort = "8080";
-    
-    // 测试环境 李浩
-    // public static String mConIP = "192.168.135.29";
-    //
-    // public static String mConPort = "8888";
-    
-    // 测试环境 贾鹏
-    // public static String mConIP = "192.168.135.50";
-    //
-    // public static String mConPort = "8080";
-    
-    // public static String mConIP = "demo.centit.com";
-    //
-    // public static String mConPort = "";
-    
-    // 本机环境 luoxing 192.168.135.57:8030
-    // public static String mConIP = "192.168.135.57";
-    
-    // public static String mConPort = "8030";
+
     
     // 测试环境 104
     public static String       mConIP                   = "lihao.tunnel.qydev.com";
     
     public static String       mConPort                 = "";
+
+
+
+
+
+
+
+    /********************************传信app变量**************************************/
+
+    public   static String                   sendNewsUrl ="http://gaojian.tunnel.qydev.com/WZInternetIndex";
+    public static   String                   sendNewsAgentid="131395218";
+    public static  String                   sendNewsType ="2";
+
+    /*********************************************************************************/
+
+
+
+
+
     
     // 公网地址/
     
