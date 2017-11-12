@@ -26,7 +26,7 @@ public class MsgDatebaseManager {
      * @param failMesage
      * @return
      */
-    public boolean  add(FailMesage failMesage){
+    public boolean  add(MyMessage failMesage){
        // Date date=new Date();
        db.beginTransaction(); // 开始事务
         try
@@ -53,15 +53,15 @@ public class MsgDatebaseManager {
      * 查询所有数据
      * @return
      */
-    public ArrayList<FailMesage> query(){
+    public ArrayList<MyMessage> query(){
 
             Cursor cursor=db.rawQuery("select * from failMessageTable ",null);
-        ArrayList<FailMesage> list=new ArrayList<>();
+        ArrayList<MyMessage> list=new ArrayList<>();
         if (cursor.moveToFirst()) {
 
 
             do {
-                FailMesage failMesage =new FailMesage();
+                MyMessage failMesage =new MyMessage();
                 failMesage.no=cursor.getString(1);
                 failMesage.time=cursor.getString(2);
                 failMesage.content=cursor.getString(3);
@@ -77,7 +77,53 @@ public class MsgDatebaseManager {
 
     }
 
+    /**
+     * 查询所有失败的短信
+     * @return
+     */
+    public ArrayList<MyMessage> queryFailMsg(){
 
+        Cursor cursor=db.rawQuery("select * from failMessageTable where failtype <> '2'",null);
+        ArrayList<MyMessage> list=new ArrayList<>();
+        if (cursor.moveToFirst()) {
+
+
+            do {
+                MyMessage failMesage =new MyMessage();
+                failMesage.no=cursor.getString(1);
+                failMesage.time=cursor.getString(2);
+                failMesage.content=cursor.getString(3);
+                failMesage.reason=cursor.getString(4);
+                failMesage.failtype=cursor.getString(5);
+
+                list.add(failMesage);
+            }while(cursor.moveToNext());
+
+        }
+        cursor.close();
+        return list;
+
+    }
+    /**
+     * 查询数据库最后一条记录的time
+     * @return
+     */
+    public String   querylastTime(){
+
+        Cursor cursor=db.rawQuery("select * from failMessageTable order by time desc limit 1",null);
+        String time ="";
+        if (cursor.moveToFirst()) {
+            do {
+
+                time =cursor.getString(2);
+
+            }while(cursor.moveToNext());
+
+        }
+        cursor.close();
+        return time;
+
+    }
 
 
     /**

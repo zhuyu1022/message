@@ -27,7 +27,7 @@
         </activity>
 
         <receiver
-            android:name=".SmsReceiver"
+            android:name=".receiver.SmsReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter android:priority="1000">
@@ -36,11 +36,11 @@
         </receiver>
 
         <service
-            android:name=".UpLoadService"
+            android:name=".service.UpLoadService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".FailMsgActivity"></activity>
+        <activity android:name=".activity.FailMsgActivity"></activity>
     </application>
 
 </manifest>

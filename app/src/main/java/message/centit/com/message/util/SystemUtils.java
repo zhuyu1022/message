@@ -30,9 +30,6 @@ public class SystemUtils {
         return gpsStatus;
     }
 
-
-
-
     /**
      * 卸载apk
      *
@@ -47,7 +44,6 @@ public class SystemUtils {
 
         context.startActivity(uninstallIntent);
     }
-
 
     /**
      * 比较版本号

@@ -30,11 +30,12 @@ public class Constant_Mgr
 
     
     // 测试环境 104
-    public static String       mConIP                   = "lihao.tunnel.qydev.com";
+/*    public static String       mConIP                   = "lihao.tunnel.qydev.com";
     
+    public static String       mConPort                 = "";*/
+
+    public static String       mConIP                   = "huyang.s1.natapp.cc";
     public static String       mConPort                 = "";
-
-
 
 
 

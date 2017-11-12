@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import message.centit.com.message.R;
-import message.centit.com.message.database.FailMesage;
+import message.centit.com.message.database.MyMessage;
 
 /**
  * Created by zhuyu on 2017/11/8.
@@ -18,9 +18,9 @@ import message.centit.com.message.database.FailMesage;
 
 public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
-    private List<FailMesage> msglist=new ArrayList<>();
+    private List<MyMessage> msglist=new ArrayList<>();
 
-    public MsgAdapter(List<FailMesage> msglist) {
+    public MsgAdapter(List<MyMessage> msglist) {
         //通过构造函数获取数据源
        // this.msglist.addAll(msglist) ;
         this.msglist=msglist;//这种形式是引用传递，外部list的修改会影响内部list
@@ -36,12 +36,12 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         //得到当前子项的Fruit实例
-        FailMesage failMesage=msglist.get(position);
+        MyMessage failMesage=msglist.get(position);
 
         holder.noTv.setText(failMesage.no);
         holder.timeTv.setText(failMesage.time);
         holder.reasonTv.setText(failMesage.reason);
-        holder.typeTv.setText(failMesage.failtype);
+      //  holder.typeTv.setText(failMesage.failtype);
         holder.contentTv.setText(failMesage.content);
     }
 
@@ -56,14 +56,14 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
         private TextView noTv;
         private TextView timeTv;
         private TextView reasonTv;
-        private TextView typeTv;
+        //private TextView typeTv;
         private TextView contentTv;
         public ViewHolder(final View itemView) {
             super(itemView);
          noTv=(TextView) itemView.findViewById(R.id.item_noTv);;
             timeTv=(TextView) itemView.findViewById(R.id.item_timeTv);;;
             reasonTv=(TextView) itemView.findViewById(R.id.item_reasonTv);;
-             typeTv=(TextView) itemView.findViewById(R.id.item_failtypeTv);;
+          //   typeTv=(TextView) itemView.findViewById(R.id.item_failtypeTv);;
              contentTv=(TextView) itemView.findViewById(R.id.item_contentTv);;
 
             //第一行代码书中将监听器放在了onCreateViewHolder（）方法中，放在这里也是可以得

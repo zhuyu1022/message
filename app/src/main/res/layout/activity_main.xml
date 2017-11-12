@@ -31,7 +31,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:layout_margin="16dp"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -39,18 +40,21 @@
             android:orientation="horizontal">
             <TextView
                 style="@style/ItemTextStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="手机号码："
-                android:textSize="20sp"
+                android:gravity="left"
+
                 />
 
             <EditText
                 android:id="@+id/phoneEt"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="3"
                 android:layout_height="wrap_content"
                 android:hint="多个号码以“，”分割"
-                android:digits="0123456789,"
+                android:digits="0123456789+-#,"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true" />
 
@@ -60,17 +64,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <TextView
+            android:id="@+id/textView"
             style="@style/ItemTextStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:hint=""
             android:text="服务端地址："
-            android:textSize="20sp" />
+            android:gravity="left"/>
 
         <EditText
             android:id="@+id/webAdressEt"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
 
             />
@@ -81,16 +89,19 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/textView2"
             style="@style/ItemTextStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:hint=""
             android:text="跳转url："
-            android:textSize="20sp" />
+            android:gravity="left"/>
 
         <EditText
             android:id="@+id/sendNewsUrlEt"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             />
     </LinearLayout>
@@ -100,15 +111,18 @@
         android:orientation="horizontal">
         <TextView
             style="@style/ItemTextStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:hint=""
             android:text="跳转agentid："
-            android:textSize="20sp" />
+            android:gravity="left"
+      />
 
         <EditText
             android:id="@+id/sendNewsAgentidEt"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             />
     </LinearLayout>
@@ -118,15 +132,18 @@
         android:orientation="horizontal">
         <TextView
             style="@style/ItemTextStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:hint=""
             android:text="跳转类型："
-            android:textSize="20sp" />
+            android:gravity="left"
+            />
 
         <EditText
             android:id="@+id/sendNewsTypeEt"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             />
     </LinearLayout>
@@ -148,7 +165,8 @@
             android:layout_height="match_parent"
 
             android:layout_below="@id/okBtn"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+           >
             <LinearLayout
 
                 android:layout_width="0dp"

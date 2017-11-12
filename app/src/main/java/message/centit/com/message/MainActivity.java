@@ -4,15 +4,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
-import android.support.design.widget.FloatingActionButton;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,19 +21,22 @@ import android.widget.Toast;
 import com.centit.GlobalState;
 import com.centit.app.cmipConstant.Constant_Mgr;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
-import message.centit.com.message.net.ServiceImpl;
+import message.centit.com.message.activity.FailMsgActivity;
+import message.centit.com.message.database.MsgDatebaseManager;
+import message.centit.com.message.database.MyMessage;
+import message.centit.com.message.service.UpLoadService;
 import message.centit.com.message.util.LogUtil;
 import message.centit.com.message.util.SharedUtil;
 import message.centit.com.message.util.SimpleDialog;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
+
+    private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
     private EditText phoneNoEt;
     private EditText webAddressEt;
     private Button okBtn;
@@ -68,7 +69,10 @@ public class MainActivity extends AppCompatActivity {
     int  sucSend=0;
     int  failAccept=0;
     int  failSend=0;
-
+private MsgDatebaseManager dbManager;
+    SmsObserver  smsObserver;
+    //收件箱uri，如果不写inbox 会调用3次监听事件，
+    private Uri SMS_INBOX = Uri.parse("content://sms/inbox");
 
     private static final String DIALOG_ADD="AddPhoneDialog";
         @Override
@@ -78,11 +82,95 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.activity_main);
             initDate();
             initView();
+            dbManager=new MsgDatebaseManager(this);
             Intent intent=new Intent(this, UpLoadService.class);
             //绑定服务
             bindService(intent,connection, Context.BIND_AUTO_CREATE);
 
+            registerObserver();
+            restoreMsg();
+
+
+        }
+
+    /**
+     * 注册
+     */
+    private void registerObserver(){
+            smsObserver = new SmsObserver(this, smsHandler);
+            getContentResolver().registerContentObserver(SMS_INBOX, true,
+                    smsObserver);
+        }
+
+    /**
+     * 从数据库中比对短信，如果没有改短信，说明需要重新读取并上传
+     */
+    private void restoreMsg() {
+     /*   String phoneNoStr = GlobalState.getInstance().getPhoneStrs();
+        String[] phoneList;
+        if (!TextUtils.isEmpty(phoneNoStr)) {
+            if (phoneNoStr.contains(",")) {
+                phoneList = phoneNoStr.split(",");
+            } else {
+                phoneList = new String[]{phoneNoStr};
+            }
+
+            for (int i = 0; i < phoneList.length; i++) {      //如果是用户输入的其中的一个号码，就上传服务器
+
+
+            }*/
+
+        String time = dbManager.querylastTime();
+        Date date=null;
+        try {
+             date=df.parse(time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if (date!=null) {
+            //需要传一个long型的时间进去，切记
+            List<MyMessage> messageList = smsObserver.getSmsByTime(this, "123456", date.getTime());
+            LogUtil.d("共查到数据：" + messageList.size());
+            for (int i = 0; i < messageList.size(); i++) {
+                MyMessage message = messageList.get(i);
+                String receiveTime = message.time;
+                String body = message.content;
+                String number = message.no;
+               UpLoadService.actionStart(this, receiveTime, body, number);
+            }
+        }
+
     }
+
+
+
+    // Message 类型值
+    public  static final int MSG_AIRPLANE = 1;
+    public static final int MSG_OUTBOXCONTENT = 2;
+    private Handler smsHandler = new Handler() {
+
+        public void handleMessage(Message msg) {
+
+            System.out.println("---mHanlder----");
+            switch (msg.what) {
+              /*  case MSG_AIRPLANE:
+                    int isAirplaneOpen = (Integer) msg.obj;
+                    if (isAirplaneOpen != 0)
+                        tvAirplane.setText("飞行模式已打开");
+                    else if (isAirplaneOpen == 0)
+                        tvAirplane.setText("飞行模式已关闭");
+                    break;*/
+                case MSG_OUTBOXCONTENT:
+                    String outbox = msg.obj.toString();
+                  //  Toast.makeText(MainActivity.this, outbox, Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+
     private void initDate(){
          //初始化APP配置
          String url= Constant_Mgr.getMIP_BASEURL();
@@ -292,6 +380,8 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         unbindService(connection);
         LogUtil.d("");
+
+        getContentResolver().unregisterContentObserver(smsObserver);
     }
 
 

@@ -1,19 +1,17 @@
-package message.centit.com.message;
+package message.centit.com.message.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import message.centit.com.message.service.UpLoadService;
 import message.centit.com.message.util.LogUtil;
 
 public class SmsReceiver extends BroadcastReceiver {
@@ -31,7 +29,8 @@ public class SmsReceiver extends BroadcastReceiver {
         LogUtil.d("接收到广播！");
         String receiveTime = "";
         String msgBody = "";
-        String sender = "";
+        String number = "";
+        String smsId="";
         Bundle bundle = intent.getExtras();
         String format = intent.getStringExtra("format");
         SmsMessage msg = null;
@@ -46,10 +45,11 @@ public class SmsReceiver extends BroadcastReceiver {
                 Date date = new Date(msg.getTimestampMillis());//时间
                  receiveTime = df.format(date);
                  msgBody += msg.getMessageBody();
-                 sender = msg.getOriginatingAddress();
+                number = msg.getOriginatingAddress();
+
             }
             //启动服务
-            UpLoadService.actionStart(context ,receiveTime,msgBody,sender);
+            //UpLoadService.actionStart(context ,"0",receiveTime,msgBody,number);
         }
     }
 

@@ -3,74 +3,40 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+android:paddingBottom="16dp"
+
    >
 
-    <LinearLayout
+
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="10dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/item_noTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:text="15651028050"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"/>
+
+    <TextView
+        android:id="@+id/item_timeTv"
+        android:layout_below="@id/item_noTv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="10dp">
+        android:gravity="center_vertical|right"
+        android:text="17:20:23"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"/>
+</LinearLayout>
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
-            <TextView
-                android:id="@+id/item_noTv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="15651028050"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/item_timeTv"
-                android:layout_below="@id/item_noTv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="17:20:23"
-                android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/item_reasonTv"
-                android:layout_below="@id/item_timeTv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="网络链接异常"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/item_failtypeTv"
-                android:layout_below="@id/item_reasonTv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="发送失败"
-                android:textSize="14sp" />
-
-        </LinearLayout>
-
-        <View xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="0.1dp"
-            android:layout_height="match_parent"
-            android:background="@android:color/darker_gray"
-            android:layout_marginRight="5dp"
-            >
-
-        </View>
-
-        <TextView
-            android:id="@+id/item_contentTv"
-            android:layout_marginLeft="3dp"
-            android:layout_width="0dp"
-            android:layout_weight="2.5"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:text="   这是短信内容 "
-            android:textSize="14sp" />
-    </LinearLayout>
 
     <View xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -79,5 +45,102 @@
         >
 
     </View>
+
+    <TextView
+        android:id="@+id/item_reasonTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:text="网络链接异常"
+        android:padding="10dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:background="@android:color/white"/>
+
+    <TextView
+        android:id="@+id/item_contentTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:text="这是短信内容 "
+        android:padding="10dp"
+        android:textSize="14sp"
+        android:background="@android:color/white"/>
+
+    <!--   <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:orientation="horizontal"
+         android:padding="10dp">
+
+       <LinearLayout
+             android:layout_width="0dp"
+             android:layout_weight="1"
+             android:layout_height="wrap_content"
+             android:orientation="vertical"
+             >
+             <TextView
+                 android:id="@+id/item_noTv"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:gravity="center_vertical"
+                 android:text="15651028050"
+                 android:textSize="14sp" />
+             <TextView
+                 android:id="@+id/item_timeTv"
+                 android:layout_below="@id/item_noTv"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:gravity="center_vertical"
+                 android:text="17:20:23"
+                 android:textSize="14sp" />
+
+             <TextView
+                 android:id="@+id/item_reasonTv"
+                 android:layout_below="@id/item_timeTv"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:gravity="center_vertical"
+                 android:text="网络链接异常"
+                 android:textSize="14sp" />
+             <TextView
+                 android:id="@+id/item_failtypeTv"
+                 android:layout_below="@id/item_reasonTv"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:gravity="center_vertical"
+                 android:text="发送失败"
+                 android:textSize="14sp"
+                 android:visibility="gone"/>
+
+         </LinearLayout>
+
+         <View xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="0.1dp"
+             android:layout_height="match_parent"
+             android:background="@android:color/darker_gray"
+             android:layout_marginRight="5dp"
+             >
+
+         </View>
+
+         <TextView
+             android:id="@+id/item_contentTv"
+             android:layout_marginLeft="3dp"
+             android:layout_width="0dp"
+             android:layout_weight="2.5"
+             android:layout_height="wrap_content"
+             android:gravity="center_vertical"
+             android:text="   这是短信内容 "
+             android:textSize="14sp" />
+     </LinearLayout>
+
+     <View xmlns:android="http://schemas.android.com/apk/res/android"
+         android:layout_width="match_parent"
+         android:layout_height="0.1dp"
+         android:background="@android:color/darker_gray"
+         >
+
+     </View>-->
 
 </LinearLayout>

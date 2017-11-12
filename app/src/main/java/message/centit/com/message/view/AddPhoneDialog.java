@@ -1,4 +1,4 @@
-package message.centit.com.message;
+package message.centit.com.message.view;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -13,8 +13,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 
-
-
+import message.centit.com.message.R;
 import message.centit.com.message.util.LogUtil;
 
 /**

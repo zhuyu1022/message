@@ -1,4 +1,4 @@
-package message.centit.com.message;
+package message.centit.com.message.activity;
 
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -12,17 +12,18 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import message.centit.com.message.R;
 import message.centit.com.message.adapter.MsgAdapter;
-import message.centit.com.message.database.FailMesage;
+import message.centit.com.message.database.MyMessage;
 import message.centit.com.message.database.MsgDatebaseManager;
 
 public class FailMsgActivity extends AppCompatActivity {
     Toolbar toolbar;
     RecyclerView msgRecyclerView;
 
-    private SwipeRefreshLayout swipeRefresh;
+   // private SwipeRefreshLayout swipeRefresh;
 private MsgAdapter adapter;
-    private List<FailMesage> msglist;
+    private List<MyMessage> msglist;
     MsgDatebaseManager dbManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,7 @@ private MsgAdapter adapter;
 
         toolbar= (Toolbar) findViewById(R.id.toolbar);
         msgRecyclerView= (RecyclerView) findViewById(R.id.recyclerView);
-        swipeRefresh= (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
+       // swipeRefresh= (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -45,8 +46,8 @@ private MsgAdapter adapter;
         //设置不显示默认标题
         actionBar.setDisplayShowTitleEnabled(false);
         //msglist=new ArrayList<>();
-        msglist=dbManager.query();
-
+     //   msglist=dbManager.query();
+        msglist=dbManager.queryFailMsg();
 
         adapter=new MsgAdapter(msglist);
         msgRecyclerView.setAdapter(adapter);
