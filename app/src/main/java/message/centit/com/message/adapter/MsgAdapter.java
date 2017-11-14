@@ -38,11 +38,11 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
         //得到当前子项的Fruit实例
         MyMessage failMesage=msglist.get(position);
 
-        holder.noTv.setText(failMesage.no);
+        holder.noTv.setText(failMesage.number);
         holder.timeTv.setText(failMesage.time);
         holder.reasonTv.setText(failMesage.reason);
       //  holder.typeTv.setText(failMesage.failtype);
-        holder.contentTv.setText(failMesage.content);
+        holder.contentTv.setText(failMesage.body);
     }
 
     @Override

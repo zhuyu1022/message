@@ -23,10 +23,12 @@ import com.centit.app.cmipConstant.Constant_Mgr;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import message.centit.com.message.activity.FailMsgActivity;
+import message.centit.com.message.database.MessageStatistics;
 import message.centit.com.message.database.MsgDatebaseManager;
 import message.centit.com.message.database.MyMessage;
 import message.centit.com.message.service.UpLoadService;
@@ -36,6 +38,18 @@ import message.centit.com.message.util.SimpleDialog;
 
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * 失败类型    1  失败发送
+     **/
+    public static final String TYPE_FAILSEND = "0";
+    /**
+     * 失败类型    0   失败接收
+     **/
+    public static final String TYPE_FAILACCEPT = "1";
+    /***   成功  */
+    public static final String TYPE_SUCCESS = "2";
+
+
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
     private EditText phoneNoEt;
     private EditText webAddressEt;
@@ -44,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
     private LinearLayout failAcceptLayout;
     private LinearLayout failSendLayout;
-//
+    //
 //    "sendNewsUrl":"消息推送跳转url"，
 //            "sendNewsAgentid":"消息推送跳转agentid"，
 //            "sendNewsType":"消息推送跳转类型"
@@ -64,88 +78,87 @@ public class MainActivity extends AppCompatActivity {
     private String sendNewsAgentid;
     private String sendNewsType;
 
-    int total=0;
-    int  sucAccept=0;
-    int  sucSend=0;
-    int  failAccept=0;
-    int  failSend=0;
-private MsgDatebaseManager dbManager;
-    SmsObserver  smsObserver;
+    private MsgDatebaseManager dbManager;
+    SmsObserver smsObserver;
     //收件箱uri，如果不写inbox 会调用3次监听事件，
     private Uri SMS_INBOX = Uri.parse("content://sms/inbox");
+    //存储本地未上传过的短信
+    List<MyMessage> messageList = new ArrayList<>();
+    int count = 0;
+    //查询时间，默认为保存按钮的触发时间，数据库中有数据时，是最后一条记录的时间
+    //Date queryDate=new Date();
+    private static final String DIALOG_ADD = "AddPhoneDialog";
 
-    private static final String DIALOG_ADD="AddPhoneDialog";
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            LogUtil.d("");
-            setContentView(R.layout.activity_main);
-            initDate();
-            initView();
-            dbManager=new MsgDatebaseManager(this);
-            Intent intent=new Intent(this, UpLoadService.class);
-            //绑定服务
-            bindService(intent,connection, Context.BIND_AUTO_CREATE);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        LogUtil.d("");
+        setContentView(R.layout.activity_main);
+        smsObserver = new SmsObserver(this, smsHandler);
+        dbManager = new MsgDatebaseManager(this);
+        initDate();
+        initView();
+        Intent intent = new Intent(this, UpLoadService.class);
+        //绑定服务
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
-            registerObserver();
-            restoreMsg();
+        // registerObserver();
+        restoreMsg();
 
-
-        }
+    }
 
     /**
      * 注册
      */
-    private void registerObserver(){
+/*    private void registerObserver(){
             smsObserver = new SmsObserver(this, smsHandler);
             getContentResolver().registerContentObserver(SMS_INBOX, true,
                     smsObserver);
-        }
+        }*/
 
     /**
-     * 从数据库中比对短信，如果没有改短信，说明需要重新读取并上传
+     * 根据输入的号码遍历短信数据，并上传
      */
     private void restoreMsg() {
-     /*   String phoneNoStr = GlobalState.getInstance().getPhoneStrs();
-        String[] phoneList;
-        if (!TextUtils.isEmpty(phoneNoStr)) {
-            if (phoneNoStr.contains(",")) {
-                phoneList = phoneNoStr.split(",");
-            } else {
-                phoneList = new String[]{phoneNoStr};
+        messageList.clear();
+        LogUtil.d("开始检查本地短信数据");
+        String phoneNo = GlobalState.getInstance().getPhoneStrs();
+        List<String> phonrList = getPhoneListfromStrWith86(phoneNo);
+        for (int i = 0; i < phonrList.size(); i++) {
+            //查询本地数据库中改短信的最后一次记录时间
+            String time = dbManager.querylastTime(phonrList.get(i));
+            LogUtil.d("time" + time);
+            Date date=null;
+            try {
+                 date = df.parse(time);
+                LogUtil.d("解析后的日期为" + date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                LogUtil.d("解析出错，时间按0进行查询，返回所有短信" );
             }
-
-            for (int i = 0; i < phoneList.length; i++) {      //如果是用户输入的其中的一个号码，就上传服务器
-
-
-            }*/
-
-        String time = dbManager.querylastTime();
-        Date date=null;
-        try {
-             date=df.parse(time);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        if (date!=null) {
+            long querytime =0;
+            if (date!=null){
+                querytime=date.getTime();
+            }
             //需要传一个long型的时间进去，切记
-            List<MyMessage> messageList = smsObserver.getSmsByTime(this, "123456", date.getTime());
-            LogUtil.d("共查到数据：" + messageList.size());
-            for (int i = 0; i < messageList.size(); i++) {
-                MyMessage message = messageList.get(i);
-                String receiveTime = message.time;
-                String body = message.content;
-                String number = message.no;
-               UpLoadService.actionStart(this, receiveTime, body, number);
-            }
+            List<MyMessage> tempMessageList = smsObserver.getSmsByTime(this, phonrList.get(i),querytime );
+            LogUtil.d("查到数据：" + tempMessageList.size());
+            messageList.addAll(tempMessageList);
+        }
+        LogUtil.d("共查到数据：" + messageList.size());
+        //不要在for循环中上传，在接口回调中进行上传，这里这上传第一条
+        if (count < messageList.size()) {
+            MyMessage message = messageList.get(count);
+           // UpLoadService.actionStart(MainActivity.this, message.time, message.body, message.number);
+            UpLoadService.actionStart(MainActivity.this, message);
+            count++;
         }
 
     }
 
 
-
     // Message 类型值
-    public  static final int MSG_AIRPLANE = 1;
+    public static final int MSG_AIRPLANE = 1;
     public static final int MSG_OUTBOXCONTENT = 2;
     private Handler smsHandler = new Handler() {
 
@@ -162,7 +175,7 @@ private MsgDatebaseManager dbManager;
                     break;*/
                 case MSG_OUTBOXCONTENT:
                     String outbox = msg.obj.toString();
-                  //  Toast.makeText(MainActivity.this, outbox, Toast.LENGTH_SHORT).show();
+                    //  Toast.makeText(MainActivity.this, outbox, Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     break;
@@ -171,67 +184,64 @@ private MsgDatebaseManager dbManager;
     };
 
 
-    private void initDate(){
-         //初始化APP配置
-         String url= Constant_Mgr.getMIP_BASEURL();
-         GlobalState.getInstance().setmRequestURL(url);
+    private void initDate() {
+        //初始化APP配置
+        String url = Constant_Mgr.getMIP_BASEURL();
+        GlobalState.getInstance().setmRequestURL(url);
 
-        sendNewsUrl=GlobalState.getInstance().getSendNewsUrl();
-     sendNewsAgentid=GlobalState.getInstance().getSendNewsAgentid();
-        sendNewsType=GlobalState.getInstance().getSendNewsType();
-
-        total= (int) SharedUtil.getValue(this,SharedUtil.total,0);
-          sucAccept=(int) SharedUtil.getValue(this,SharedUtil.sucAccept,0);
-         sucSend=(int) SharedUtil.getValue(this,SharedUtil.sucSend,0);
-        failAccept=(int) SharedUtil.getValue(this,SharedUtil.failAccept,0);
-         failSend=(int) SharedUtil.getValue(this,SharedUtil.failSend,0);
+        sendNewsUrl = GlobalState.getInstance().getSendNewsUrl();
+        sendNewsAgentid = GlobalState.getInstance().getSendNewsAgentid();
+        sendNewsType = GlobalState.getInstance().getSendNewsType();
 
 
     }
-    private void initView(){
 
-        statisticLayout= (LinearLayout) findViewById(R.id.statisticLayout);
+    private void initView() {
 
-         failAcceptLayout=(LinearLayout) findViewById(R.id.failAcceptLl);
-        failSendLayout=(LinearLayout) findViewById(R.id.failSendLl);
+        statisticLayout = (LinearLayout) findViewById(R.id.statisticLayout);
 
-        phoneNoEt= (EditText) findViewById(R.id.phoneEt);
-        webAddressEt= (EditText) findViewById(R.id.webAdressEt);
+        failAcceptLayout = (LinearLayout) findViewById(R.id.failAcceptLl);
+        failSendLayout = (LinearLayout) findViewById(R.id.failSendLl);
 
-        sendNewsUrlEt=(EditText) findViewById(R.id.sendNewsUrlEt);
-       sendNewsAgentidEt=(EditText) findViewById(R.id.sendNewsAgentidEt);
-        sendNewsTypeEt=(EditText) findViewById(R.id.sendNewsTypeEt);
+        phoneNoEt = (EditText) findViewById(R.id.phoneEt);
+        webAddressEt = (EditText) findViewById(R.id.webAdressEt);
+
+        sendNewsUrlEt = (EditText) findViewById(R.id.sendNewsUrlEt);
+        sendNewsAgentidEt = (EditText) findViewById(R.id.sendNewsAgentidEt);
+        sendNewsTypeEt = (EditText) findViewById(R.id.sendNewsTypeEt);
 
 
-       totalTv= (TextView) findViewById(R.id.totalTv);
-         sucAcceptTv= (TextView) findViewById(R.id.sucAcceptTv);
-      sucSendTv= (TextView) findViewById(R.id.sucSendTv);
-        failAcceptTv= (TextView) findViewById(R.id.failAcceptTv);
-       failSendTv= (TextView) findViewById(R.id.failSendTv);
+        totalTv = (TextView) findViewById(R.id.totalTv);
+        sucAcceptTv = (TextView) findViewById(R.id.sucAcceptTv);
+        sucSendTv = (TextView) findViewById(R.id.sucSendTv);
+        failAcceptTv = (TextView) findViewById(R.id.failAcceptTv);
+        failSendTv = (TextView) findViewById(R.id.failSendTv);
 
         sendNewsUrlEt.setText(sendNewsUrl);
-                sendNewsAgentidEt.setText(sendNewsAgentid);
+        sendNewsAgentidEt.setText(sendNewsAgentid);
         sendNewsTypeEt.setText(sendNewsType);
 
-        totalTv.setText(total+"");
+    /*    totalTv.setText(total+"");
         sucAcceptTv.setText(sucAccept+"");
         sucSendTv.setText(sucSend+"");
         failAcceptTv.setText(failAccept+"");
-        failSendTv.setText(failSend+"");
+        failSendTv.setText(failSend+"");*/
 
-        String phoneNo= GlobalState.getInstance().getPhoneStrs();
+        readStatisticsFromDB();
+
+        String phoneNo = GlobalState.getInstance().getPhoneStrs();
         phoneNoEt.setText(phoneNo);
 
 
-        String url= GlobalState.getInstance().getmIPAddr();
-        String port= GlobalState.getInstance().getmPortNum();
-        if (TextUtils.isEmpty(port)){
+        String url = GlobalState.getInstance().getmIPAddr();
+        String port = GlobalState.getInstance().getmPortNum();
+        if (TextUtils.isEmpty(port)) {
             webAddressEt.setText(url);
-        }else {
-            webAddressEt.setText(url+":"+port);
+        } else {
+            webAddressEt.setText(url + ":" + port);
         }
 
-        okBtn= (Button) findViewById(R.id.okBtn);
+        okBtn = (Button) findViewById(R.id.okBtn);
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -243,8 +253,13 @@ private MsgDatebaseManager dbManager;
         failAcceptLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent =new Intent(MainActivity.this,FailMsgActivity.class);
-                startActivity(intent);
+                String phoneNoStr = GlobalState.getInstance().getPhoneStrs();
+                List<String> phonrList = getPhoneListfromStrWith86(phoneNoStr);
+                List<MyMessage> messageList = new ArrayList<MyMessage>();
+                for (int i = 0; i < phonrList.size(); i++) {
+                    messageList.addAll(dbManager.queryFailMsg(phonrList.get(i), TYPE_FAILACCEPT));
+                }
+                FailMsgActivity.actionStart(MainActivity.this, TYPE_FAILACCEPT, messageList);
             }
         });
 
@@ -252,66 +267,72 @@ private MsgDatebaseManager dbManager;
         failSendLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent =new Intent(MainActivity.this,FailMsgActivity.class);
-                startActivity(intent);
+                String phoneNoStr = GlobalState.getInstance().getPhoneStrs();
+                List<String> phonrList = getPhoneListfromStrWith86(phoneNoStr);
+                List<MyMessage> messageList = new ArrayList<MyMessage>();
+                for (int i = 0; i < phonrList.size(); i++) {
+                    messageList.addAll(dbManager.queryFailMsg(phonrList.get(i), TYPE_FAILSEND));
+                }
+                FailMsgActivity.actionStart(MainActivity.this, TYPE_FAILSEND, messageList);
             }
         });
 
     }
 
 
-
     /**
      * 保存配置
      */
-    private void saveConfig(){
-        String phoneNo=phoneNoEt.getText().toString().trim();
+    private void saveConfig() {
+        //记录保存的触发时间
+      //  queryDate = new Date();
+
+        String phoneNo = phoneNoEt.getText().toString().trim();
         String address = webAddressEt.getText().toString().trim();
-        String sendNewsUrl=sendNewsUrlEt.getText().toString().trim();
-        String sendNewsAgentid=sendNewsAgentidEt.getText().toString().trim();
-         String sendNewsType=sendNewsTypeEt.getText().toString().trim();
+        String sendNewsUrl = sendNewsUrlEt.getText().toString().trim();
+        String sendNewsAgentid = sendNewsAgentidEt.getText().toString().trim();
+        String sendNewsType = sendNewsTypeEt.getText().toString().trim();
 
 
-        if (TextUtils.isEmpty(phoneNo)){
-            SimpleDialog.show(this,"号码不能为空！");
+        if (TextUtils.isEmpty(phoneNo)) {
+            SimpleDialog.show(this, "号码不能为空！");
             return;
         }
-        if (TextUtils.isEmpty(address)){
-            SimpleDialog.show(this,"服务器地址不能为空！");
+        if (TextUtils.isEmpty(address)) {
+            SimpleDialog.show(this, "服务器地址不能为空！");
             return;
         }
-        if (TextUtils.isEmpty(sendNewsUrl)){
-            SimpleDialog.show(this,"消息推送跳转url不能为空！");
+        if (TextUtils.isEmpty(sendNewsUrl)) {
+            SimpleDialog.show(this, "消息推送跳转url不能为空！");
             return;
         }
-        if (TextUtils.isEmpty(sendNewsAgentid)){
-            SimpleDialog.show(this,"消息推送跳转agentid不能为空！");
+        if (TextUtils.isEmpty(sendNewsAgentid)) {
+            SimpleDialog.show(this, "消息推送跳转agentid不能为空！");
             return;
         }
-        if (TextUtils.isEmpty(sendNewsType)){
-            SimpleDialog.show(this,"消息推送跳转类型不能为空！");
+        if (TextUtils.isEmpty(sendNewsType)) {
+            SimpleDialog.show(this, "消息推送跳转类型不能为空！");
             return;
         }
 
-        String ip="";
-        String port="";
-        if (address.contains(":")){
+        String ip = "";
+        String port = "";
+        if (address.contains(":")) {
             //避免输入了“：”，但是没有输入端口号
-            if (address.split(":").length==2){
-                ip= address.split(":")[0];
+            if (address.split(":").length == 2) {
+                ip = address.split(":")[0];
                 port = address.split(":")[1];
-            }else{
+            } else {
                 Toast.makeText(this, "你输入的ip地址有误,重新输入!", Toast.LENGTH_SHORT).show();
                 return;
             }
-        }else{
-            ip= address;
+        } else {
+            ip = address;
         }
         GlobalState.getInstance().setmIPAddr(ip);
         GlobalState.getInstance().setmPortNum(port);
         String url = "http://" + ip;
-        if (!port.equals(""))
-        {
+        if (!port.equals("")) {
             url = url + ":" + port;
         }
         GlobalState.getInstance().setmRequestURL(url);
@@ -320,12 +341,23 @@ private MsgDatebaseManager dbManager;
         GlobalState.getInstance().setSendNewsUrl(sendNewsUrl);
         GlobalState.getInstance().setSendNewsAgentid(sendNewsAgentid);
         GlobalState.getInstance().setSendNewsType(sendNewsType);
-
+        /***************************************************************************/
+        //根据phonestr 在数据库中创建数据
+        List<String> phonrList = getPhoneListfromStrWith86(phoneNo);
+        for (int i = 0; i < phonrList.size(); i++) {
+            MessageStatistics msgStatistics = new MessageStatistics(phonrList.get(i), 0, 0, 0, 0, 0);
+            dbManager.addStatistics(msgStatistics);
+        }
         Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
+        //保存完后，重新刷新界面
+        readStatisticsFromDB();
+        //读取新号码对应的历史数据，并上传
+        restoreMsg();
+
     }
 
 
-    UpLoadService.UpLoadBinder upLoadBinder= null;
+    UpLoadService.UpLoadBinder upLoadBinder = null;
     private ServiceConnection connection = new ServiceConnection() {
         /**
          * 在建立起于Service的连接时会调用该方法，目前Android是通过IBind机制实现与服务的连接。
@@ -335,35 +367,96 @@ private MsgDatebaseManager dbManager;
             //  获得binder实例
             upLoadBinder = (UpLoadService.UpLoadBinder) iBinder;
             //调用getservice方法获取service实例
-            UpLoadService upLoadService= upLoadBinder.getService();
+            UpLoadService upLoadService = upLoadBinder.getService();
+
+
             upLoadService.setOnUploadListener(new UpLoadService.OnUploadListener() {
                 @Override
-                public void onResult() {
+                public void onTotal() {
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            readStatisticsFromDB();
+                        }
+                    });
+
+                }
+
+                @Override
+                public void onSucAccept() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "开始上传...", Toast.LENGTH_SHORT).show();
+                            readStatisticsFromDB();
+                        }
+                    });
 
 
+                }
 
-                            total= (int) SharedUtil.getValue(MainActivity.this,SharedUtil.total,0);
-                            sucAccept=(int) SharedUtil.getValue(MainActivity.this,SharedUtil.sucAccept,0);
-                            sucSend=(int) SharedUtil.getValue(MainActivity.this,SharedUtil.sucSend,0);
-                            failAccept=(int) SharedUtil.getValue(MainActivity.this,SharedUtil.failAccept,0);
-                            failSend=(int) SharedUtil.getValue(MainActivity.this,SharedUtil.failSend,0);
+                @Override
+                public void onSucSend() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "上传成功！", Toast.LENGTH_SHORT).show();
+                            readStatisticsFromDB();
+                            if (count < messageList.size()) {
+                                MyMessage message = messageList.get(count);
+                                // UpLoadService.actionStart(MainActivity.this, message.time, message.body, message.number);
+                                UpLoadService.actionStart(MainActivity.this, message);
+                                count++;
+                            }
+                        }
+                    });
 
+                }
 
-                            totalTv.setText(total+"");
-                            sucAcceptTv.setText(sucAccept+"");
-                            sucSendTv.setText(sucSend+"");
-                            failAcceptTv.setText(failAccept+"");
-                            failSendTv.setText(failSend+"");
+                @Override
+                public void onFailAccept() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            readStatisticsFromDB();
 
                         }
                     });
+
+                }
+
+                @Override
+                public void onFailSend() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            readStatisticsFromDB();
+                            if (count < messageList.size()) {
+                                MyMessage message = messageList.get(count);
+                                // UpLoadService.actionStart(MainActivity.this, message.time, message.body, message.number);
+                                UpLoadService.actionStart(MainActivity.this, message);
+                                count++;
+                            }
+                        }
+                    });
+
                 }
             });
+         /*   upLoadService.setOnUploadListener(new UpLoadService.OnUploadListener() {
+                @Override
+                public void onResult() {
+                  runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            readStatisticsFromDB();
+                        }
+                    });
+                }
+            });*/
         }
-      /**
+
+        /**
          * 当与Service之间的连接丢失的时候会调用该方法，。
          * @param componentName 丢失连接的组件名称
          */
@@ -374,6 +467,35 @@ private MsgDatebaseManager dbManager;
     };
 
 
+    /**
+     * 从数据库中读取短信统计
+     */
+    private void readStatisticsFromDB() {
+        int total = 0;
+        int sucAccept = 0;
+        int sucSend = 0;
+        int failAccept = 0;
+        int failSend = 0;
+        String phoneNoStr = GlobalState.getInstance().getPhoneStrs();
+        List<String> phonrList = getPhoneListfromStrWith86(phoneNoStr);
+        for (int i = 0; i < phonrList.size(); i++) {
+            MessageStatistics msgStatistics = dbManager.queryMsgStatistics(phonrList.get(i));
+            if (msgStatistics != null) {
+                total += msgStatistics.total;
+                sucAccept += msgStatistics.sucAccept;
+                sucSend += msgStatistics.sucSend;
+                failAccept += msgStatistics.failAccept;
+                failSend += msgStatistics.failSend;
+            }
+
+        }
+        totalTv.setText(total + "");
+        sucAcceptTv.setText(sucAccept + "");
+        sucSendTv.setText(sucSend + "");
+        failAcceptTv.setText(failAccept + "");
+        failSendTv.setText(failSend + "");
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -381,11 +503,66 @@ private MsgDatebaseManager dbManager;
         unbindService(connection);
         LogUtil.d("");
 
-        getContentResolver().unregisterContentObserver(smsObserver);
+        // getContentResolver().unregisterContentObserver(smsObserver);
     }
 
 
+    /**
+     * 根据字符串解析号码，并增加+86号码
+     *
+     * @param phones
+     * @return
+     */
+    private List<String> getPhoneListfromStrWith86(String phones) {
+
+        List<String> phoneList = new ArrayList<>();
+
+        if (!TextUtils.isEmpty(phones)) {
+            if (phones.contains(",")) {
+                String[] tempphones = phones.split(",");
+                for (int i = 0; i < tempphones.length; i++) {
+                    phoneList.add(tempphones[i]);
+                    if (!tempphones[i].contains("+86")) {
+                        phoneList.add("+86" + tempphones[i]);
+                    }
+
+                }
+            } else {
+
+                phoneList.add(phones);
+                if (!phones.contains("+86")) {
+                    phoneList.add("+86" + phones);
+                }
+
+            }
+        }
+
+        return phoneList;
+    }
+
+    private List<String> getPhoneListfromStr(String phones) {
+
+        List<String> phoneList = new ArrayList<>();
+
+        if (!TextUtils.isEmpty(phones)) {
+            if (phones.contains(",")) {
+                String[] tempphones = phones.split(",");
+                for (int i = 0; i < tempphones.length; i++) {
+                    phoneList.add(tempphones[i]);
+                }
+            } else {
+
+                phoneList.add(phones);
+
+            }
+        }
+
+        return phoneList;
+    }
 
 
+    private void showProgressDialog() {
+
+    }
 
 }

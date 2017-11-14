@@ -10,13 +10,23 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class MapDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final String CREATE_TABLE= "create table failMessageTable(" +
+    public static final String CREATE_TABLE= "create table messageTable(" +
             "id integer primary key autoincrement," +
-            "no text," +
+            "number text," +
             "time text," +
-            "content text," +
+            "body text," +
             "reason text," +
-            "failtype text)";
+            "type text)";
+
+    public static final String CREATE_TABLE2= "create table messageStatistics(" +
+            "id integer primary key autoincrement," +
+            "number text," +
+            "total int," +
+            "sucAccept int," +
+            "sucSend int," +
+            "failAccept int," +
+            "failSend int)";
+
 
     public MapDatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -29,6 +39,7 @@ public class MapDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CREATE_TABLE);
+        sqLiteDatabase.execSQL(CREATE_TABLE2);
     }
 
     /**
@@ -39,7 +50,8 @@ public class MapDatabaseHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        sqLiteDatabase.execSQL("drop table if exits failMessageTable");
+        sqLiteDatabase.execSQL("drop table if exists messageTable");
+        sqLiteDatabase.execSQL("drop table if exists messageStatistics");
         onCreate(sqLiteDatabase);
     }
 

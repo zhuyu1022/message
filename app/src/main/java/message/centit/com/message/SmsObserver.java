@@ -66,14 +66,16 @@ public class SmsObserver extends ContentObserver {
             long time = c.getLong(c.getColumnIndex("date"));
             String receiveTime = df.format(new Date(time));
             //LogUtil.d( "\n接收时间："+receiveTime+"返回的时间信息："+receiveTime);
-            UpLoadService.actionStart(mContext,  receiveTime, body, number);
+            //UpLoadService.actionStart(mContext,  receiveTime, body, number);
+            MyMessage message = new MyMessage(number,receiveTime,body,"","");
+            UpLoadService.actionStart(mContext, message);
             sb.append("短信id：" + smsId + "\n发件人手机号码: " + c.getInt(c.getColumnIndex("address")))
                     .append("\n信息内容: " + c.getString(c.getColumnIndex("body")))
                     .append("\n接收时间：" + receiveTime);
         }
 
         c.close();
-        mHandler.obtainMessage(MainActivity.MSG_OUTBOXCONTENT, sb).sendToTarget();
+        //mHandler.obtainMessage(MainActivity.MSG_OUTBOXCONTENT, sb).sendToTarget();
 
     }
 
@@ -91,9 +93,12 @@ public class SmsObserver extends ContentObserver {
         LogUtil.d(phoneNumber);
         LogUtil.d("时间："+lastTime);
        //String where="address = '"+phoneNumber+"'";
-        String where="date > '"+lastTime+"'";
+      String where="date > '"+lastTime+"' and address='"+phoneNumber+"'";
+       // String where="date > '"+lastTime+"'";
+      //  String where="address='"+phoneNumber+"'";
+       // String where= null;
         //Cursor c = cr.query(SMS_INBOX, projection, null, null, "date desc");
-        Cursor c = cr.query(SMS_INBOX, projection, where, null, "date desc");
+        Cursor c = cr.query(SMS_INBOX, projection, where, null, "date asc");
         if (null == c) {
             Log.i("ooc", "************cur == null");
             return null;

@@ -11,6 +11,7 @@ import android.util.Log;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import message.centit.com.message.database.MyMessage;
 import message.centit.com.message.service.UpLoadService;
 import message.centit.com.message.util.LogUtil;
 
@@ -22,7 +23,7 @@ public class SmsReceiver extends BroadcastReceiver {
         Log.i("yjj", "new SmsReceiver");
     }
 
-    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -49,7 +50,10 @@ public class SmsReceiver extends BroadcastReceiver {
 
             }
             //启动服务
-            //UpLoadService.actionStart(context ,"0",receiveTime,msgBody,number);
+           // UpLoadService.actionStart(context ,receiveTime,msgBody,number);
+            //新启动服务方法
+            MyMessage message=new MyMessage(number,receiveTime,msgBody,"","");
+            UpLoadService.actionStart(context ,message);
         }
     }
 
