@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void restoreMsg() {
         messageList.clear();
+        count=0;
         LogUtil.d("开始检查本地短信数据");
         String phoneNo = GlobalState.getInstance().getPhoneStrs();
         List<String> phonrList = getPhoneListfromStrWith86(phoneNo);
@@ -148,11 +149,16 @@ public class MainActivity extends AppCompatActivity {
         LogUtil.d("共查到数据：" + messageList.size());
         //不要在for循环中上传，在接口回调中进行上传，这里这上传第一条
         if (count < messageList.size()) {
-            MyMessage message = messageList.get(count);
-           // UpLoadService.actionStart(MainActivity.this, message.time, message.body, message.number);
+            MyMessage message = messageList.get(count);;
             UpLoadService.actionStart(MainActivity.this, message);
             count++;
         }
+    /*    for (int i = 0; i <messageList.size() ; i++) {
+            MyMessage message = messageList.get(i);
+            UpLoadService.actionStart(MainActivity.this, message);
+        }*/
+
+
 
     }
 
@@ -377,7 +383,9 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
                             readStatisticsFromDB();
+
                         }
                     });
 
@@ -390,6 +398,7 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             Toast.makeText(MainActivity.this, "开始上传...", Toast.LENGTH_SHORT).show();
                             readStatisticsFromDB();
+
                         }
                     });
 
@@ -402,13 +411,8 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             Toast.makeText(MainActivity.this, "上传成功！", Toast.LENGTH_SHORT).show();
-                            readStatisticsFromDB();
-                            if (count < messageList.size()) {
-                                MyMessage message = messageList.get(count);
-                                // UpLoadService.actionStart(MainActivity.this, message.time, message.body, message.number);
-                                UpLoadService.actionStart(MainActivity.this, message);
-                                count++;
-                            }
+                           readStatisticsFromDB();
+                            readNextMsg();
                         }
                     });
 
@@ -420,7 +424,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             readStatisticsFromDB();
-
+                            readNextMsg();
                         }
                     });
 
@@ -432,29 +436,15 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             readStatisticsFromDB();
-                            if (count < messageList.size()) {
-                                MyMessage message = messageList.get(count);
-                                // UpLoadService.actionStart(MainActivity.this, message.time, message.body, message.number);
-                                UpLoadService.actionStart(MainActivity.this, message);
-                                count++;
-                            }
+                            readNextMsg();
                         }
                     });
 
                 }
             });
-         /*   upLoadService.setOnUploadListener(new UpLoadService.OnUploadListener() {
-                @Override
-                public void onResult() {
-                  runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            readStatisticsFromDB();
-                        }
-                    });
-                }
-            });*/
         }
+
+
 
         /**
          * 当与Service之间的连接丢失的时候会调用该方法，。
@@ -465,6 +455,17 @@ public class MainActivity extends AppCompatActivity {
             LogUtil.d("");
         }
     };
+
+
+    private void readNextMsg(){
+
+        if (count < messageList.size()) {
+            MyMessage message = messageList.get(count);
+            // UpLoadService.actionStart(MainActivity.this, message.time, message.body, message.number);
+            UpLoadService.actionStart(MainActivity.this, message);
+            count++;
+        }
+    }
 
 
     /**

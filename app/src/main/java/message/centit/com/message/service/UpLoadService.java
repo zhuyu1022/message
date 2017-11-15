@@ -133,125 +133,119 @@ boolean isReadMsg=true;
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
 
-        //messageQueue
-        final Thread  parseMsg= new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (intent!=null){
-                    MyMessage receiveMessage=new MyMessage();
-                    receiveMessage= (MyMessage) intent.getExtras().get(EXTRA_MESSAGE);
-                    messageQueue.offer(receiveMessage);
-                   if(isReadMsg){
-                       isReadMsg=false;
-                       //解析并上传短信
-                        parseMsgAndUpload(receiveMessage);
 
-                   }
-
-                LogUtil.d("uploadservice服务启动");
-                    LogUtil.d("receiveTime:" + time + "msgBody:" + body + "sender:" + number);
+            if (intent!=null){
+                MyMessage receiveMessage=new MyMessage();
+                receiveMessage= (MyMessage) intent.getExtras().get(EXTRA_MESSAGE);
+                LogUtil.d("有新短信加入队列");
+                messageQueue.offer(receiveMessage);
+                if(isReadMsg){
+                    //先设为false，防止下一条短信立刻进入
+                    isReadMsg=false;
+                    //获取短信队列第一个元素 并删除
+                    MyMessage firstMessage=messageQueue.poll();
+                    LogUtil.d("开始取出第一条短信，解析。。。");
+                    //解析并上传短信，并赋值isReadMsg
+                    isReadMsg= parseMsgAndUpload(firstMessage);
+                }else
+                    {
+                    LogUtil.d("入口锁住了，等待接口返回！");
                 }
             }
-        });
-
-        parseMsg.start();
         return super.onStartCommand(intent, flags, startId);
     }
 
-
-    private void parseMsgAndUpload(MyMessage receiveMessage){
+    /**
+     *
+     * @param receiveMessage
+     * @return  是否可以读取下一条短信
+     */
+    private  boolean  parseMsgAndUpload(final MyMessage receiveMessage){
+        boolean readNextMsg=true;
 
             time = receiveMessage.time;
             body = receiveMessage.body;
             number = receiveMessage.number;
+            phoneNoStr = GlobalState.getInstance().getPhoneStrs();
+            webAddress = GlobalState.getInstance().getmIPAddr();
 
-        // time = intent.getStringExtra(EXTRA_TIME);
-        //body = intent.getStringExtra(EXTRA_MSG);
-        // number = intent.getStringExtra(EXTRA_SENDER);
-        phoneNoStr = GlobalState.getInstance().getPhoneStrs();
-        webAddress = GlobalState.getInstance().getmIPAddr();
-
-        if (!TextUtils.isEmpty(phoneNoStr) && !TextUtils.isEmpty(webAddress)) {
-            if (phoneNoStr.contains(",")) {
-                String [] tempphones = phoneNoStr.split(",");
-                for (int i = 0; i <tempphones.length ; i++) {
-                    phoneList.add(tempphones[i]);
-                    phoneList.add("+86"+tempphones[i]);
-                }
-            } else {
-                //phoneList = new String[]{phoneNoStr};
-                phoneList.add(phoneNoStr);
-                phoneList.add("+86"+phoneNoStr);
-            }
-            for (int i = 0; i < phoneList.size(); i++) {      //如果是用户输入的其中的一个号码，才进行解析
-                if (number.equals(phoneList.get(i).trim())) {
-                    body=body.trim();
-                    msgBodybeforeUpload=msgBodybeforeUpload+body;
-                    if (body.startsWith(MSG_START)){
-                        body=body.substring(MSG_START.length());
-                    }else if (body.startsWith("【")){
-                        //短息头不正确
-                        dbManager.addFailAccept(number);
-                        MyMessage message=new MyMessage(number,time,msgBodybeforeUpload,"短信头格式错误",TYPE_FAILACCEPT);
-                        dbManager.add(message);
-                        if (listener!=null){
-                            listener.onFailAccept();
-                        }
-                        tempMsg="";
-                        msgBodybeforeUpload="";
-                        isReadMsg=true;
-                        //移除队列首个元素
-                        messageQueue.poll();
-                        return;
+            if (!TextUtils.isEmpty(phoneNoStr) && !TextUtils.isEmpty(webAddress)) {
+                if (phoneNoStr.contains(",")) {
+                    String [] tempphones = phoneNoStr.split(",");
+                    for (int i = 0; i <tempphones.length ; i++) {
+                        phoneList.add(tempphones[i]);
+                        phoneList.add("+86"+tempphones[i]);
                     }
-                    //当短信内容以结束标志结束时才上传服务器
-                    if (body.endsWith(MSG_END)){
-                        //到这说明成功接收到一条指定号码的短信，切短信以#结尾
-                        dbManager.addTotal(number);
-                        if (listener!=null){
-                            listener.onTotal();
-                        }
-                        //截取"#"之前的短信内容，拼接上一次的tempMsg，并存入临时变量
-                        tempMsg=tempMsg+body.substring(0,body.lastIndexOf(MSG_END));
-                        //上传服务器之前先判断json格式是否正确,笨方法，但是能解决问题
-                        try {
-                            new JSONObject(tempMsg);
-                            //如果没有异常 说明json格式正确，接收成功！
-                            dbManager.addSucAccept(number);
-                            if (listener!=null){
-                                listener.onSucAccept();
-                            }
-                            uploadMessage(tempMsg);
-                            tempMsg="";
-                            //移除队列首个元素
-                            messageQueue.poll();
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            //出现异常 说明接收失败，传过来的json格式有问题
+                } else {
+                    //phoneList = new String[]{phoneNoStr};
+                    phoneList.add(phoneNoStr);
+                    phoneList.add("+86"+phoneNoStr);
+                }
+                for (int i = 0; i < phoneList.size(); i++) {      //如果是用户输入的其中的一个号码，才进行解析
+                    if (number.equals(phoneList.get(i).trim())) {
+                        body=body.trim();
+                        msgBodybeforeUpload=msgBodybeforeUpload+body;
+                        if (body.startsWith(MSG_START)){
+                            body=body.substring(MSG_START.length());
+                        }else if (body.startsWith("【")){
+                            //短息头不正确
                             dbManager.addFailAccept(number);
-                            MyMessage message=new MyMessage(number,time,msgBodybeforeUpload,"json格式错误",TYPE_FAILACCEPT);
+                            MyMessage message=new MyMessage(number,time,msgBodybeforeUpload,"短信头格式错误",TYPE_FAILACCEPT);
                             dbManager.add(message);
+                            tempMsg="";
+                            msgBodybeforeUpload="";
                             if (listener!=null){
                                 listener.onFailAccept();
                             }
-                            tempMsg="";
-                            msgBodybeforeUpload="";
-                            isReadMsg=true;
-                            //移除队列首个元素
-                            messageQueue.poll();
+                            return readNextMsg;
                         }
-                    }else{
-                        //若没有#号 把内容赋给tempMsg
-                        tempMsg=body;
-                        isReadMsg=true;
+                        //当短信内容以结束标志结束时才上传服务器
+                        if (body.endsWith(MSG_END)){
+                            //到这说明成功接收到一条指定号码的短信，切短信以#结尾
+                            dbManager.addTotal(number);
+                            if (listener!=null){
+                                listener.onTotal();
+                            }
+                            //截取"#"之前的短信内容，拼接上一次的tempMsg，并存入临时变量
+                            tempMsg=tempMsg+body.substring(0,body.lastIndexOf(MSG_END));
+                            //上传服务器之前先判断json格式是否正确,笨方法，但是能解决问题
+                            try {
+                                new JSONObject(tempMsg);
+                                //如果没有异常 说明json格式正确，接收成功！
+                                dbManager.addSucAccept(number);
+                                if (listener!=null){
+                                    listener.onSucAccept();
+                                }
+                                //开始上传！！！！！！
+                                uploadMessage(tempMsg);
+                                tempMsg="";
+                                readNextMsg= false;
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                //出现异常 说明接收失败，传过来的json格式有问题
+                                dbManager.addFailAccept(number);
+                                MyMessage message=new MyMessage(number,time,msgBodybeforeUpload,"json格式错误",TYPE_FAILACCEPT);
+                                dbManager.add(message);
+                                tempMsg="";
+                                msgBodybeforeUpload="";
+                                if (listener!=null){
+                                    listener.onFailAccept();
+                                }
+
+                                readNextMsg=  true;
+                            }
+                        }else{
+                            //若没有#号 把内容赋给tempMsg
+                            tempMsg=body;
+                        }
+                        break;
                     }
-                    break;
                 }
             }
-        }
+        return  readNextMsg;
     }
 
+/**********************真机测试下来反应速度很慢，还是用广播的形式监听***********************/
     /**
      * 注册
      */
@@ -260,8 +254,6 @@ boolean isReadMsg=true;
             getContentResolver().registerContentObserver(SMS_INBOX, true,
                     smsObserver);
         }
-
-
 
     /**
      * 根据字符串解析号码，并增加+86号码
@@ -334,14 +326,17 @@ List<String > phoneList=new ArrayList<>();
       * 读取队列中的下个元素并上传
       */
     private void readNextMessageFromQueue(){
-
+        LogUtil.d("读取队列中下一个元素");
+        isReadMsg=true;
+        LogUtil.d("messageQueue队列大小："+messageQueue.size());
         if (messageQueue.size()>0){
-            //返回队列首个元素
-            MyMessage nextMessage=messageQueue.peek();
+            //返回队列首个元素 并移除
+            MyMessage nextMessage=messageQueue.poll();
+            LogUtil.d("队列不为空！取出第一个元素并解析。。。。");
             parseMsgAndUpload(nextMessage);
         }else{
             //队列为空，可以通过onstartcommand来上传下一条短信了
-            isReadMsg=true;
+            LogUtil.d("队列为空！解锁");
         }
     }
 
@@ -355,13 +350,10 @@ List<String > phoneList=new ArrayList<>();
             dbManager.addFailSend(number);
             MyMessage message=new MyMessage(number,time,msgBodybeforeUpload,"连接超时，网络异常",TYPE_FAILSEND);
             dbManager.add(message);
+            msgBodybeforeUpload="";
             if (listener!=null){
                 listener.onFailSend();
             }
-            msgBodybeforeUpload="";
-            isReadMsg=true;
-            //移除队列首个元素
-            messageQueue.poll();
             readNextMessageFromQueue();
 
         }
@@ -372,56 +364,33 @@ List<String > phoneList=new ArrayList<>();
         if (response.code()!=200){
                 //网络异常 说明发送失败
                 dbManager.addFailSend(number);
-             // failSend++;
-              //  SharedUtil.putValue(UpLoadService.this,SharedUtil.failSend,failSend);*//*
                 MyMessage message=new MyMessage(number,time,msgBodybeforeUpload,"服务器异常",TYPE_FAILSEND);
                 dbManager.add(message);
                 if (listener!=null){
                     listener.onFailSend();
                 }
-                msgBodybeforeUpload="";
-            isReadMsg=true;
-            //移除队列首个元素
-            messageQueue.poll();
-                readNextMessageFromQueue();
-                return;
             }
             String result = response.body().string();
             Log.d("result", result);
             try {
-
                 JSONObject jsonObj = new JSONObject(result);
                 if (jsonObj != null) {
                     String retCode = jsonObj.optString("retCode");
                     if (retCode != null && retCode.equals("0")) {
                         dbManager.addSucSend(number);
-                              /*   sucSend++;
-                                 SharedUtil.putValue(UpLoadService.this,SharedUtil.sucSend,sucSend);*/
                         MyMessage message=new MyMessage(number,time,msgBodybeforeUpload,"成功发送",TYPE_SUCCESS);
                         dbManager.add(message);
                         if (listener!=null){
                             listener.onSucSend();
                         }
-                        msgBodybeforeUpload="";
-                        isReadMsg=true;
-                        //移除队列首个元素
-                        messageQueue.poll();
-                        readNextMessageFromQueue();
-                        return;
+
                     }else{
                         dbManager.addFailSend(number);
-                       /* failSend++;
-                        SharedUtil.putValue(UpLoadService.this,SharedUtil.failSend,failSend);*/
                         MyMessage message=new MyMessage(number,time,msgBodybeforeUpload,"服务器解析数据失败",TYPE_FAILSEND);
                         dbManager.add(message);
                         if (listener!=null){
                             listener.onFailSend();
                         }
-                        msgBodybeforeUpload="";
-                        isReadMsg=true;
-                        //移除队列首个元素
-                        messageQueue.poll();
-                        readNextMessageFromQueue();
                     }
                 }
 
@@ -429,6 +398,7 @@ List<String > phoneList=new ArrayList<>();
                 e.printStackTrace();
             }
             msgBodybeforeUpload="";
+            readNextMessageFromQueue();
         }
     };
      OnUploadListener listener;
@@ -483,5 +453,11 @@ List<String > phoneList=new ArrayList<>();
 
             }
         }
+
     }
+
+
+
+
+
 }
